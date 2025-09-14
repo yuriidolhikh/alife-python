@@ -70,6 +70,8 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
         _, running = await asyncio.wait(tasks, timeout=1)
         tasks = list(running)
 
+        grid.cleanup()
+
 if __name__ == "__main__":
 
     map_grid = MapGrid()

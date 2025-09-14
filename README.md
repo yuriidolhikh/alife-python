@@ -7,3 +7,9 @@ This is a hypothetical implementation of STALKER 2 offline A-Life in Python 3.
     cd alife-python/
     pip3 install -r requirements.txt
     python3 main.py
+
+# TODO
+- Support for obstacles and faction no-go zones on the map
+- Update of pathing algorithm for optimal pathfinding with obstacles
+- Trade and HuntSquad tasks
+- Firepower-based combat resolution

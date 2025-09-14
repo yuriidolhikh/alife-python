@@ -11,7 +11,9 @@ TRAVEL_DURATION = 10 # duration of travel to the adjacent square
 LOOT_DURATION = 3 # duration of looting task
 
 """Other parameters"""
-MAX_NUM_MESSAGES = 30 # max number of latest messages to display under the map grid
+MAX_NUM_MESSAGES = 25 # max number of latest messages to display under the map grid
+GRID_X_SIZE = 30
+GRID_Y_SIZE = 30
 
 # faction -> factions hostile to it
 RELATIONS = {

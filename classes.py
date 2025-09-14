@@ -8,7 +8,7 @@ from typing import Optional
 
 from colorama import Fore, Style, just_fix_windows_console
 
-from config import LETTERS, MAX_NUM_MESSAGES
+from config import MAX_NUM_MESSAGES, GRID_X_SIZE, GRID_Y_SIZE
 
 
 @dataclass
@@ -56,8 +56,9 @@ class MapGrid:
     """Defines the map and contains all map-related function"""
 
     def __init__(self):
-        self._grid = {(l, d): ([], []) for l in LETTERS for d in range(len(LETTERS) + 1)}
+        self._grid = {}
         self._msg_log = deque([], maxlen=MAX_NUM_MESSAGES)
+        self._squares_to_delete = []
 
         # Fix colored display on Windows
         just_fix_windows_console()
@@ -69,8 +70,8 @@ class MapGrid:
         """Draw current grid state in console"""
 
         # Extract row/column labels
-        cols = sorted(set(k[0] for k in self._grid.keys()), key=lambda c: string.ascii_uppercase.index(c))
-        rows = sorted(set(k[1] for k in self._grid.keys()))
+        cols = [i for i in range(GRID_X_SIZE)]
+        rows = [i for i in range(GRID_Y_SIZE)]
 
         # Print column headers
         header = "     " + "  ".join(f"{col:^5}" for col in cols)
@@ -81,7 +82,7 @@ class MapGrid:
         for r in rows:
             row_str = f"{r:>2} |"
             for c in cols:
-                cell = self._grid.get((c, r), ())
+                cell = self._grid.get((c, r), ([], []))
                 if cell[0]:
                     content = ",".join(f"{x.faction[0:2].capitalize()}({len(x.actors)})" for x in cell[0])
                 elif cell[1]:
@@ -101,7 +102,7 @@ class MapGrid:
 
     def refresh(self):
         """Redraw the grid in the terminal"""
-        os.system("cls" if os.name == "nt" else "printf '\33c\e[3J'")
+        os.system("cls" if os.name == "nt" else "printf '\033c\033[3J'")
         self.draw()
 
     def addLogMsg(self, msg_type: str, message: str, square: Optional[tuple[str, int]] = None):
@@ -131,11 +132,11 @@ class MapGrid:
         """Spawn random faction squad on the map"""
 
         num_actors = random.randint(1, 5)
-        location = (random.choice(LETTERS), random.randint(0, len(LETTERS)))
+        location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
         # avoid spawning on top of existing squads
-        while self._grid[location][0]:
-            location = (random.choice(LETTERS), random.randint(0, len(LETTERS)))
+        while location in self._grid:
+            location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
         squad = Squad(faction, location)
         # Generate actors
@@ -153,15 +154,11 @@ class MapGrid:
         Each step can be diagonal, vertical, or horizontal.
         Grid rows start at 0, so top-left is ('A', 0).
         """
-        # Map letters <-> numbers
-        col_to_idx = {c: i for i, c in enumerate(LETTERS)}
-        idx_to_col = {i: c for c, i in col_to_idx.items()}
-
         col_s, row_s = start
         col_d, row_d = dest
 
-        x, y = col_to_idx[col_s], row_s
-        x_end, y_end = col_to_idx[col_d], row_d
+        x, y = col_s, row_s
+        x_end, y_end = col_d, row_d
 
         path = []
 
@@ -176,7 +173,7 @@ class MapGrid:
             elif y > y_end:
                 y -= 1
 
-            path.append((idx_to_col[x], y))
+            path.append((x, y))
 
         return path
 
@@ -189,11 +186,30 @@ class MapGrid:
         except ValueError:
             return False
 
+        # Query empty square cleanup
+        if not list(filter(bool, self._grid[location])):
+            self._squares_to_delete.append(location)
+
         return True
 
     def place(self, entity: type[Actor | Squad], square: tuple[str, int]):
         """Place actor or squad on the grid square"""
         index = 0 if isinstance(entity, Squad) else 1
+        if square not in self._grid:
+            self._grid[square] = [[], []]
+
         self._grid[square][index].append(entity)
+
+        return True
+
+    def cleanup(self):
+        """Clean up empty squares. On larger grids they take up a lot of memory"""
+        for square in self._squares_to_delete:
+            try:
+                del self._grid[square]
+            except KeyError:
+                continue
+
+        self._squares_to_delete = []
 
         return True
