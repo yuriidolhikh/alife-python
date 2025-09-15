@@ -15,7 +15,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
     while True:
         grid.refresh()
 
-        for square, entities in grid.getGrid().items():
+        for square, entities in grid.get_grid().items():
             squadlist = entities[0]
             actorlist = entities[1]
 
@@ -40,7 +40,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                     squad.in_combat = True
                     nxt.in_combat = True
 
-                    tasks.append(loop.create_task(CombatTask.execute(grid, squad, nxt)))
+                    tasks.append(loop.create_task(CombatTask(grid, squad, nxt).execute()))
                     break
 
                 # Prevent looting mid-combat
@@ -51,10 +51,10 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                 if actorlist:
                     max_lootable_corpses = min(len(actorlist), len(squad.actors)) # 1 guy loots 1 corpse at a time
                     for actor in filter(lambda x: not x.looted, actorlist[:max_lootable_corpses]):
-                        tasks.append(loop.create_task(LootTask.execute(grid, squad, actor)))
+                        tasks.append(loop.create_task(LootTask(grid, squad, actor).execute()))
                 else:
                     # Can't task a squad already doing something else
-                    if squad.isBusy():
+                    if squad.is_busy():
                         continue
 
                     # These tasks are the same priority and can be randomly selected
@@ -62,10 +62,10 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                     task = random.choice([IdleTask, MoveTask])
                     if task is IdleTask:
                         duration = random.randint(MIN_IDLE_DURATION, MAX_IDLE_DURATION)
-                        tasks.append(loop.create_task(IdleTask.execute(grid, squad, duration)))
+                        tasks.append(loop.create_task(IdleTask(grid, squad, duration).execute()))
                     else:
-                        dest = random.choice(list(grid.getGrid().keys()))
-                        tasks.append(loop.create_task(MoveTask.execute(grid, squad, dest)))
+                        dest = random.choice(list(grid.get_grid().keys()))
+                        tasks.append(loop.create_task(MoveTask(grid, squad, dest).execute()))
 
         _, running = await asyncio.wait(tasks, timeout=1)
         tasks = list(running)
@@ -75,7 +75,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
 if __name__ == "__main__":
 
     map_grid = MapGrid()
-    map_grid.addLogMsg("INFO", "Starting simulation...")
+    map_grid.add_log_msg("INFO", "Starting simulation...")
 
     # Generate squads
     for f in FACTIONS:

@@ -12,6 +12,7 @@ LOOT_DURATION = 3 # duration of looting task
 
 """Other parameters"""
 MAX_NUM_MESSAGES = 25 # max number of latest messages to display under the map grid
+SHOW_GRID = True
 GRID_X_SIZE = 30
 GRID_Y_SIZE = 30
 
