@@ -89,7 +89,6 @@ if __name__ == "__main__":
             await asyncio.sleep(SPAWN_FREQUENCY)
             grid.spawn(random.choice(FACTIONS))
 
-
     main_loop = uvloop.new_event_loop()
     main_loop.create_task(main(main_loop, map_grid))
     main_loop.create_task(scheduled_spawner(map_grid))

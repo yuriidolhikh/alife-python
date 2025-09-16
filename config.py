@@ -1,20 +1,24 @@
 """Spawn parameters"""
-SPAWN_FREQUENCY = 20 # frequency of new squad spawns (seconds)
-MIN_FACTION_SQUADS = 2 # min number of faction squads to spawn on startup
-MAX_FACTION_SQUADS = 5 # max number of faction squads to spawn on startup
+SPAWN_FREQUENCY = 15 # frequency of new squad spawns (seconds)
+MIN_FACTION_SQUADS = 20 # min number of faction squads to spawn on startup
+MAX_FACTION_SQUADS = 30 # max number of faction squads to spawn on startup
 
 """Task parameters"""
-MIN_IDLE_DURATION = 5 # min duration of "wait at current location" task
+MIN_IDLE_DURATION = 10 # min duration of "wait at current location" task
 MAX_IDLE_DURATION = 30 # max duration of wait at current location" task
-COMBAT_DURATION = 5 # duration of combat task
+COMBAT_DURATION = 10 # duration of combat task
 TRAVEL_DURATION = 10 # duration of travel to the adjacent square
-LOOT_DURATION = 3 # duration of looting task
+LOOT_DURATION = 5 # duration of looting task
+
+"""Pathfinding parameters"""
+PATHFINDING_MODE = "astar" # simple, astar, diagonal-astar or hpa
+CLUSTER_SIZE = 80 # hpa only
 
 """Other parameters"""
-MAX_NUM_MESSAGES = 25 # max number of latest messages to display under the map grid
+MAX_NUM_MESSAGES = 20 # max number of latest messages to display under the map grid
 SHOW_GRID = True
-GRID_X_SIZE = 30
-GRID_Y_SIZE = 30
+GRID_X_SIZE = 50
+GRID_Y_SIZE = 50
 
 # faction -> factions hostile to it
 RELATIONS = {
@@ -27,5 +31,6 @@ RELATIONS = {
     "mutant": {"stalker", "ward", "spark", "mercenary", "military", "monolith"}
 }
 
-LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" # Grid squares
 FACTIONS = ("stalker", "ward", "spark", "mercenary", "military", "monolith", "mutant")
+
+OBSTACLES = set()

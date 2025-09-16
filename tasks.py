@@ -4,7 +4,8 @@ import random
 from typing import Awaitable
 
 from classes import MapGrid, Squad, Actor
-from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION
+from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION, PATHFINDING_MODE, OBSTACLES
+
 
 class Task:
     """Base class for all tasks"""
@@ -14,8 +15,8 @@ class Task:
     _steps: list[Awaitable[bool]]
 
     async def execute(self):
-        while task := self._steps.pop(0):
-            await task
+        while self._steps:
+            await self._steps.pop(0)
 
 
 class CombatTask(Task):
@@ -57,7 +58,18 @@ class MoveTask(Task):
         self._steps = [self._run(grid, squad, dest)]
 
     async def _run(self, grid: MapGrid, squad: Squad, dest: tuple[int, int]):
-        path = grid.create_astar_path(squad.location, dest, [])
+        if squad.location == dest: # already there
+            return True
+
+        if PATHFINDING_MODE == "hpa":
+            path = grid.create_hpa_path(squad.location, dest, OBSTACLES)
+        elif PATHFINDING_MODE == "astar":
+            path = grid.create_astar_path(squad.location, dest, OBSTACLES)
+        elif PATHFINDING_MODE == "diagonal-astar":
+            path = grid.create_8way_astar_path(squad.location, dest, OBSTACLES)
+        else:
+            path = grid.create_simple_path(squad.location, dest)
+
         if path is None:
             return False
 
