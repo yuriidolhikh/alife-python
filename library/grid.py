@@ -1,7 +1,7 @@
 import os
 import random
 
-from collections import deque
+from collections import deque, defaultdict
 from colorama import Fore, Style, just_fix_windows_console
 from typing import Optional
 
@@ -11,12 +11,14 @@ from .pathfinder import Pathfinder
 
 from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, OBSTACLES
 
+type Location = tuple[int, int]
+
 
 class MapGrid:
     """Defines the map and contains all map-related function"""
 
     def __init__(self):
-        self._grid = {}
+        self._grid = defaultdict(lambda: ([], []))
         self._msg_log = deque([], maxlen=MAX_NUM_MESSAGES)
         self._squares_to_delete = set()
         self.pathfinder = Pathfinder()
@@ -72,7 +74,7 @@ class MapGrid:
         os.system("cls" if os.name == "nt" else "printf '\033c\033[3J'")
         self.draw()
 
-    def add_log_msg(self, msg_type: str, message: str, square: Optional[tuple[int, int]] = None):
+    def add_log_msg(self, msg_type: str, message: str, square: Optional[Location] = None):
         """Logging helper"""
 
         if msg_type == "COMBAT":
@@ -98,15 +100,16 @@ class MapGrid:
 
         return True
 
-    def spawn(self, faction: str):
+    def spawn(self, faction: str, location: Optional[Location] = None):
         """Spawn random faction squad on the map"""
 
         num_actors = random.randint(1, 5)
-        location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
-        # avoid spawning on top of existing squads
-        while location in self._grid:
+        if location is None:
             location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
+            # avoid spawning on top of existing squads
+            while location in self._grid:
+                location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
         squad = Squad(faction, location)
         # Generate actors
@@ -118,7 +121,7 @@ class MapGrid:
 
         return True
 
-    def remove(self, entity: type[Actor | Squad], square: Optional[tuple[int, int]] = None):
+    def remove(self, entity: type[Actor | Squad], square: Optional[Location] = None):
         """Remove actor or squad from the grid. If grid square is not provided - attempt to get location from the entity"""
         index = 0 if isinstance(entity, Squad) else 1
         try:
@@ -133,12 +136,9 @@ class MapGrid:
 
         return True
 
-    def place(self, entity: type[Actor | Squad], square: tuple[int, int]):
+    def place(self, entity: type[Actor | Squad], square: Location):
         """Place actor or squad on the grid square"""
         index = 0 if isinstance(entity, Squad) else 1
-        if square not in self._grid:
-            self._grid[square] = [[], []]
-
         self._grid[square][index].append(entity)
 
         return True

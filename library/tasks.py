@@ -35,7 +35,7 @@ class CombatTask(Task):
         for squad in (left, right):
             losses = random.randint(0, len(squad.actors))
 
-            msg = f"{squad.faction} squad({len(squad.actors)}) {losses and f'lost {losses} {losses > 1 and "men" or "man"}' or 'took no casualtieS'} in combat"
+            msg = f"{squad.faction} squad({len(squad.actors)}) {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
             if losses == len(squad.actors):
                 msg += " and was wiped out"
 

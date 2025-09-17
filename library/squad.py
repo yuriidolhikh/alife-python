@@ -14,7 +14,7 @@ class Squad:
     is_looting: bool = False
 
     def __str__(self):
-        return f"{self.faction.upper()} squad ({len(self.actors)} actors) at location {self.location}"
+        return f"{self.faction.capitalize()} squad ({len(self.actors)} actors) at location {self.location}"
 
     def is_busy(self):
         return self.in_combat or self.is_looting or self.has_task
