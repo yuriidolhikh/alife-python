@@ -35,14 +35,19 @@ class CombatTask(Task):
         for squad in (left, right):
             losses = random.randint(0, len(squad.actors))
 
-            msg = f"{squad.faction} squad({len(squad.actors)}) {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
+            msg = f"{squad.faction} squad({len(squad.actors)})"
+            if losses:
+                msg += f"lost {losses} {losses > 1 and "men" or "man"} in combat"
+            else:
+                msg += "took no casualties in combat"
+
             if losses == len(squad.actors):
                 msg += " and was wiped out"
 
             grid.add_log_msg("COMBAT", msg, squad.location)
 
             for actor in squad.actors[:losses]:
-                grid.place(actor, squad.location) # place actor "corpse" for future looting
+                grid.place(actor, squad.location)  # place actor "corpse" for future looting
                 squad.remove_actor(actor)
 
             if not squad.actors:
@@ -61,7 +66,7 @@ class MoveTask(Task):
         self._steps = [self._run(grid, squad, dest)]
 
     async def _run(self, grid: MapGrid, squad: Squad, dest: tuple[int, int]):
-        if squad.location == dest: # already there
+        if squad.location == dest:  # already there
             return True
 
         path = grid.pathfinder.create_path(squad.location, dest)

@@ -8,7 +8,7 @@ class Squad:
     """Squad on the grid, made up of multiple actors. Executes tasks"""
     faction: str
     location: tuple[int, int]
-    actors: list = field(default_factory=list) # list of actors in the squad
+    actors: list = field(default_factory=list)  # list of actors in the squad
     has_task: bool = False
     in_combat: bool = False
     is_looting: bool = False

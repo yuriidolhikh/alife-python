@@ -41,9 +41,9 @@ class Pathfinder:
                 if nid in clusters:
                     # Check if there's any walkable shared-border cell
                     border_ok = False
-                    for (x,y) in cells:
-                        nx, ny = x + dx*CLUSTER_SIZE // max(1, abs(dx)), y + dy * CLUSTER_SIZE // max(1, abs(dy))
-                        if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx,ny) not in OBSTACLES:
+                    for (x, y) in cells:
+                        nx, ny = x + dx * CLUSTER_SIZE // max(1, abs(dx)), y + dy * CLUSTER_SIZE // max(1, abs(dy))
+                        if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx, ny) not in OBSTACLES:
                             border_ok = True
                             break
 
@@ -98,6 +98,7 @@ class Pathfinder:
     def create_8way_astar_path(self, start: tuple[int, int], goal: tuple[int, int], obstacles: set[tuple[int, int]]):
         """A* pathfinding on a 2D grid with 8-direction movement"""
         obstacle_set = set(obstacles)
+
         def in_bounds(p):
             return 0 <= p[0] < GRID_X_SIZE and 0 <= p[1] < GRID_Y_SIZE
 
@@ -153,10 +154,10 @@ class Pathfinder:
                 return self._path_cache[(current, goal)]
 
             visited.add(current)
-            for dx, dy in [(1,0), (-1,0), (0,1), (0,-1)]:
+            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
                 nx, ny = current[0] + dx, current[1] + dy
                 if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx, ny) not in obstacles:
-                    heapq.heappush(open_set, (g + 1 + self.manhattan_distance((nx,ny), goal), g + 1, (nx,ny), path + [(nx,ny)]))
+                    heapq.heappush(open_set, (g + 1 + self.manhattan_distance((nx, ny), goal), g + 1, (nx, ny), path + [(nx, ny)]))
 
         return None
 
@@ -181,7 +182,9 @@ class Pathfinder:
                 cluster_path = path
                 break
 
-            if cur in visited: continue
+            if cur in visited:
+                continue
+
             visited.add(cur)
             for nxt in self._hpa_graph[cur]:
                 if nxt not in visited:

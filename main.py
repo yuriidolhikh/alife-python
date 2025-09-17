@@ -47,7 +47,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
 
                 # Loot if there are bodies in the same square. Prevents movement
                 if actorlist:
-                    max_lootable_corpses = min(len(actorlist), len(squad.actors)) # 1 guy loots 1 corpse at a time
+                    max_lootable_corpses = min(len(actorlist), len(squad.actors))  # 1 guy loots 1 corpse at a time
                     for actor in filter(lambda x: not x.looted, actorlist[:max_lootable_corpses]):
                         tasks.append(loop.create_task(LootTask(grid, squad, actor).execute()))
                 else:
