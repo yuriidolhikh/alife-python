@@ -3,8 +3,11 @@ import random
 
 from typing import Awaitable
 
-from classes import MapGrid, Squad, Actor
-from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION, PATHFINDING_MODE, OBSTACLES
+from .actor import Actor
+from .squad import Squad
+from .grid import MapGrid
+
+from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION
 
 
 class Task:
@@ -61,15 +64,7 @@ class MoveTask(Task):
         if squad.location == dest: # already there
             return True
 
-        if PATHFINDING_MODE == "hpa":
-            path = grid.create_hpa_path(squad.location, dest, OBSTACLES)
-        elif PATHFINDING_MODE == "astar":
-            path = grid.create_astar_path(squad.location, dest, OBSTACLES)
-        elif PATHFINDING_MODE == "diagonal-astar":
-            path = grid.create_8way_astar_path(squad.location, dest, OBSTACLES)
-        else:
-            path = grid.create_simple_path(squad.location, dest)
-
+        path = grid.pathfinder.create_path(squad.location, dest)
         if path is None:
             return False
 

@@ -2,11 +2,9 @@ import asyncio
 import random
 import uvloop
 
-from classes import MapGrid
+from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask
 from config import (RELATIONS, FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
                     MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS)
-
-from tasks import CombatTask, IdleTask, MoveTask, LootTask
 
 
 async def main(loop: uvloop.Loop, grid: MapGrid):
@@ -75,7 +73,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
 if __name__ == "__main__":
 
     map_grid = MapGrid()
-    map_grid.add_log_msg("INFO", "Starting simulation...")
+    map_grid.add_log_msg("INFO", " Starting simulation...")
 
     # Generate squads
     for f in FACTIONS:
