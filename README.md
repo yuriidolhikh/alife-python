@@ -15,7 +15,7 @@ This is a hypothetical implementation of STALKER 2 offline A-Life in Python 3.
 - `hpa`: Hierarchical A*. Requires warm-up and extra memory, but works well with larger grids
 
 # TODO
-- Support for obstacles and faction no-go zones on the map
+- ~~Support for obstacles and faction no-go zones on the map~~
 - ~~Update of pathing algorithm for optimal pathfinding with obstacles~~
 - Trade and HuntSquad tasks
 - Firepower-based combat resolution

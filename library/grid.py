@@ -59,7 +59,10 @@ class MapGrid:
                 else:
                     cell = self._grid.get((c, r), ([], []))
                     if cell[0]:
-                        content = ",".join(f"{x.faction[0:2].capitalize()}({len(x.actors)})" for x in cell[0])
+                        if len(cell[0]) == 1:
+                            content = ",".join(f"{x.faction[0:2].capitalize()}({len(x.actors)})" for x in cell[0])
+                        else:
+                            content = f"-{len(cell[0])} sq-"
                     elif cell[1]:
                         content = "x"
                     else:

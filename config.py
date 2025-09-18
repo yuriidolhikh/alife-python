@@ -1,7 +1,7 @@
 """Spawn parameters"""
 SPAWN_FREQUENCY = 15  # frequency of new squad spawns (seconds)
-MIN_FACTION_SQUADS = 1  # min number of faction squads to spawn on startup
-MAX_FACTION_SQUADS = 1  # max number of faction squads to spawn on startup
+MIN_FACTION_SQUADS = 5  # min number of faction squads to spawn on startup
+MAX_FACTION_SQUADS = 7  # max number of faction squads to spawn on startup
 
 """Task parameters"""
 MIN_IDLE_DURATION = 10  # min duration of "wait at current location" task
@@ -11,12 +11,12 @@ TRAVEL_DURATION = 10  # duration of travel to the adjacent square
 LOOT_DURATION = 5  # duration of looting task
 
 """Pathfinding parameters"""
-PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
+PATHFINDING_MODE = "diagonal-astar"  # simple, astar, diagonal-astar or hpa
 CLUSTER_SIZE = 40  # hpa only
 
 """Other parameters"""
 SHOW_GRID = True
-MAX_NUM_MESSAGES = 20  # max number of latest messages to display under the map grid
+MAX_NUM_MESSAGES = 40  # max number of latest messages to display under the map grid
 GRID_X_SIZE = 40
 GRID_Y_SIZE = 24
 
