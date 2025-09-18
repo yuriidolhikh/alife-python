@@ -12,7 +12,7 @@ This is a hypothetical implementation of STALKER 2 offline A-Life in Python 3.
 - `simple`: direct shortest path to destination. Ignores obstacles
 - `astar`: 4-way A*. Works well for medium-sized grids (less than 150x150)
 - `diagonal-astar`: A*, but with 8-way movement, same as regular A* otherwise
-- `hpa`: Requires warm-up and extra memory, but works well with larger grids
+- `hpa`: Hierarchical A*. Requires warm-up and extra memory, but works well with larger grids
 
 # TODO
 - Support for obstacles and faction no-go zones on the map

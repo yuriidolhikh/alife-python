@@ -1,15 +1,14 @@
-from mock import patch
-
 from library import MapGrid, Squad
 
 
-@patch('library.grid.SHOW_GRID', True)
 def test_grid_logger(monkeypatch):
+    monkeypatch.setattr('library.grid.SHOW_GRID', True)
+
     grid = MapGrid()
     grid.add_log_msg("INFO", " test")
 
-    assert len(grid._msg_log) == 1
-    assert grid._msg_log.pop() == "[INFO] TEST"
+    assert len(grid._msg_log) == 1, "Message should be added to the message log"
+    assert grid._msg_log.pop() == "[INFO] TEST", "Message in the log should be correctly formatted"
 
 
 def test_grid_spawner():
@@ -17,16 +16,16 @@ def test_grid_spawner():
     grid.spawn("test_faction", (5, 33))
 
     grid_dict = grid.get_grid()
-    assert len(grid_dict.keys()) == 1
-    assert (5, 33) in grid_dict
+    assert len(grid_dict.keys()) == 1, "Only one square should be populated"
+    assert (5, 33) in grid_dict, "Entity should be spawned at the expected square"
 
     entities = grid_dict[(5, 33)]
-    assert len(entities[0]) == 1
+    assert len(entities[0]) == 1, "Only one entity should spawn"
 
     squad = entities[0][0]
-    assert isinstance(squad, Squad)
-    assert squad.faction == "test_faction"
-    assert squad.location == (5, 33)
+    assert isinstance(squad, Squad), "Should be correct entity object"
+    assert squad.faction == "test_faction", "Entity should have correct faction set"
+    assert squad.location == (5, 33), "Entity should have correct location set"
 
 
 def test_grid_remove():
@@ -39,7 +38,7 @@ def test_grid_remove():
     grid.remove(squad)
     grid.cleanup()
 
-    assert (4, 22) not in grid_dict
+    assert (4, 22) not in grid_dict, "Square should be removed from the grid"
 
 
 def test_grid_place():
@@ -48,5 +47,5 @@ def test_grid_place():
     grid.place(squad, (3, 26))
     grid_dict = grid.get_grid()
 
-    assert (3, 26) in grid_dict
-    assert grid_dict[(3, 26)][0][0] is squad
+    assert (3, 26) in grid_dict, "Square should be added to the grid"
+    assert grid_dict[(3, 26)][0][0] is squad, "Square should contain correct entity"

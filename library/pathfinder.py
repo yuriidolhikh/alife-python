@@ -1,6 +1,7 @@
 import heapq
 
 from collections import defaultdict
+from typing import Optional
 
 from config import GRID_X_SIZE, GRID_Y_SIZE, PATHFINDING_MODE, CLUSTER_SIZE, OBSTACLES
 
@@ -17,10 +18,17 @@ class Pathfinder:
             (0, -1), (-1, -1), (-1, 0), (-1, 1)
         ]
 
-        # Pre-compute HPA* clusters
         if PATHFINDING_MODE == "hpa":
+            """
+                For performance reasons it's optimal to pre-compute HPA* cluster links if obstacles are static
+                If obstacle set changes between pathfinding calls the new set can be passed
+                directly into create_path method
+            """
             print("[INFO] PRE-COMPUTING HPA* CLUSTERS. THIS MAY TAKE A WHILE...")
             self._precompute_clusters()
+
+            graph = self._compute_cluster_links(OBSTACLES)
+            self._hpa_graph = graph
 
     def _precompute_clusters(self):
         """Pre-compute HPA clusters and cluster links"""
@@ -33,25 +41,24 @@ class Pathfinder:
                 clusters[cid] = [(i, j) for i in range(x, min(x + CLUSTER_SIZE, GRID_X_SIZE))
                                           for j in range(y, min(y + CLUSTER_SIZE, GRID_Y_SIZE))]
 
+        self._clusters = clusters
+
+    def _compute_cluster_links(self, obstacles: set):
         graph = defaultdict(list)
-        for cid, cells in clusters.items():
+        for cid, cells in self._clusters.items():
             cx, cy = cid
             for dx, dy in self._neighbors_including_diagonals:
                 nid = (cx + dx, cy + dy)
-                if nid in clusters:
+                if nid in self._clusters:
                     # Check if there's any walkable shared-border cell
                     border_ok = False
                     for (x, y) in cells:
                         nx, ny = x + dx * CLUSTER_SIZE // max(1, abs(dx)), y + dy * CLUSTER_SIZE // max(1, abs(dy))
-                        if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx, ny) not in OBSTACLES:
+                        if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx, ny) not in obstacles:
                             border_ok = True
                             break
 
-                    if border_ok:
-                        graph[cid].append(nid)
-
-        self._clusters = clusters
-        self._hpa_graph = graph
+        return graph
 
     def manhattan_distance(self, a: tuple[int, int], b: tuple[int, int]):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
@@ -59,15 +66,17 @@ class Pathfinder:
     def chebyshev_distance(self, a: tuple[int, int], b: tuple[int, int]):
         return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
-    def create_path(self, start: tuple[int, int], dest: tuple[int, int]):
+    def create_path(self, start: tuple[int, int], dest: tuple[int, int], obstacles: Optional[set] = None):
         """Create a path using a specified pathfinder algorithm"""
 
+        obstacle_set = obstacles is not None and obstacles or OBSTACLES
+
         if PATHFINDING_MODE == "hpa":
-            path = self.create_hpa_path(start, dest, OBSTACLES)
+            path = self.create_hpa_path(start, dest, obstacle_set)
         elif PATHFINDING_MODE == "astar":
-            path = self.create_astar_path(start, dest, OBSTACLES)
+            path = self.create_astar_path(start, dest, obstacle_set)
         elif PATHFINDING_MODE == "diagonal-astar":
-            path = self.create_8way_astar_path(start, dest, OBSTACLES)
+            path = self.create_8way_astar_path(start, dest, obstacle_set)
         else:
             path = self.create_simple_path(start, dest)
 
@@ -176,6 +185,12 @@ class Pathfinder:
         visited = set()
         cluster_path = None
 
+        # Obstacle set changed, need to rebuild cluster links
+        if not obstacles is OBSTACLES:
+            graph = self._compute_cluster_links(obstacles)
+        else:
+            graph = self._hpa_graph
+
         while open_set:
             f, g, cur, path = heapq.heappop(open_set)
             if cur == goal_c:
@@ -186,7 +201,7 @@ class Pathfinder:
                 continue
 
             visited.add(cur)
-            for nxt in self._hpa_graph[cur]:
+            for nxt in graph[cur]:
                 if nxt not in visited:
                     heapq.heappush(open_set, (g + 1 + self.manhattan_distance(nxt, goal_c), g + 1, nxt, path + [nxt]))
 
