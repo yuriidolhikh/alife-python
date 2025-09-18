@@ -3,13 +3,13 @@ import heapq
 from collections import defaultdict
 from typing import Optional
 
-from config import GRID_X_SIZE, GRID_Y_SIZE, PATHFINDING_MODE, CLUSTER_SIZE, OBSTACLES
+from config import GRID_X_SIZE, GRID_Y_SIZE, PATHFINDING_MODE, CLUSTER_SIZE
 
 
 class Pathfinder:
     """Defines the map and contains all map-related function"""
 
-    def __init__(self):
+    def __init__(self, obstacles: set):
 
         # Cache computed path chunks for faster pathfinding
         self._path_cache = {}
@@ -17,6 +17,7 @@ class Pathfinder:
             (0, 1), (1, 1), (1, 0), (1, -1),
             (0, -1), (-1, -1), (-1, 0), (-1, 1)
         ]
+        self._obstacles = obstacles
 
         if PATHFINDING_MODE == "hpa":
             """
@@ -27,7 +28,7 @@ class Pathfinder:
             print("[INFO] PRE-COMPUTING HPA* CLUSTERS. THIS MAY TAKE A WHILE...")
             self._precompute_clusters()
 
-            graph = self._compute_cluster_links(OBSTACLES)
+            graph = self._compute_cluster_links(obstacles)
             self._hpa_graph = graph
 
     def _precompute_clusters(self):
@@ -69,7 +70,7 @@ class Pathfinder:
     def create_path(self, start: tuple[int, int], dest: tuple[int, int], obstacles: Optional[set] = None):
         """Create a path using a specified pathfinder algorithm"""
 
-        obstacle_set = obstacles is not None and obstacles or OBSTACLES
+        obstacle_set = obstacles is not None and obstacles or self._obstacles
 
         if PATHFINDING_MODE == "hpa":
             path = self.create_hpa_path(start, dest, obstacle_set)
@@ -186,7 +187,7 @@ class Pathfinder:
         cluster_path = None
 
         # Obstacle set changed, need to rebuild cluster links
-        if not obstacles is OBSTACLES:
+        if not obstacles is self._obstacles:
             graph = self._compute_cluster_links(obstacles)
         else:
             graph = self._hpa_graph

@@ -1,4 +1,5 @@
 import os
+import pickle
 import random
 
 from collections import deque, defaultdict
@@ -9,7 +10,7 @@ from .actor import Actor
 from .squad import Squad
 from .pathfinder import Pathfinder
 
-from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, OBSTACLES
+from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, MAP
 
 type Location = tuple[int, int]
 
@@ -21,7 +22,15 @@ class MapGrid:
         self._grid = defaultdict(lambda: ([], []))
         self._msg_log = deque([], maxlen=MAX_NUM_MESSAGES)
         self._squares_to_delete = set()
-        self.pathfinder = Pathfinder()
+
+        dirname = os.path.dirname(__file__)
+        mapfile = os.path.join(dirname, f'../maps/{MAP}')
+
+        with open(mapfile, 'rb') as f:
+            obstacles = pickle.load(f)
+            self._obstacles = obstacles
+
+        self.pathfinder = Pathfinder(obstacles)
 
         # Fix colored display on Windows
         just_fix_windows_console()
@@ -45,7 +54,7 @@ class MapGrid:
         for r in rows:
             row_str = f"{r:>2} |"
             for c in cols:
-                if ((c, r)) in OBSTACLES:
+                if ((c, r)) in self._obstacles:
                     content = "#"
                 else:
                     cell = self._grid.get((c, r), ([], []))
@@ -108,7 +117,7 @@ class MapGrid:
         if location is None:
             location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
             # avoid spawning on top of existing squads
-            while location in self._grid:
+            while location in self._grid and location not in self._obstacles:
                 location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
         squad = Squad(faction, location)

@@ -10,7 +10,25 @@ def pathfinder(monkeypatch):
     monkeypatch.setattr('library.pathfinder.CLUSTER_SIZE', 2)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'hpa')
 
-    return Pathfinder()
+    return Pathfinder(set())
+
+
+def test_create_path(monkeypatch, pathfinder):
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
+    path = pathfinder.create_path((7, 7), (9, 9))
+    assert path == [(8, 8), (9, 9)], "create_path should return correct simple path"
+
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'astar')
+    path = pathfinder.create_path((6, 6), (9, 9), {(7, 9)})
+    assert path == [(6, 7), (6, 8), (7, 8), (8, 8), (8, 9), (9, 9)], "create_path should return correct A* path"
+
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'diagonal-astar')
+    path = pathfinder.create_path((6, 6), (9, 9), {(8, 8)})
+    assert path == [(7, 7), (7, 8), (8, 9), (9, 9)], "create_path should return correct diagonal A* path"
+
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'hpa')
+    path = pathfinder.create_path((1, 1), (9, 9), {(8, 8)})
+    assert path == [(2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (7, 8), (8, 9), (9, 9)], "create_path should return correct HPA* path"
 
 
 def test_create_simple_path(pathfinder):
