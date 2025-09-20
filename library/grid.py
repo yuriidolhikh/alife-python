@@ -38,6 +38,9 @@ class MapGrid:
     def get_grid(self):
         return self._grid
 
+    def get_obstacles(self):
+        return self._obstacles
+
     def draw(self):
         """Draw current grid state in console"""
 
@@ -120,7 +123,7 @@ class MapGrid:
         if location is None:
             location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
             # avoid spawning on top of existing squads
-            while location in self._grid and location not in self._obstacles:
+            while location in self._grid or location in self._obstacles:
                 location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
 
         squad = Squad(faction, location)

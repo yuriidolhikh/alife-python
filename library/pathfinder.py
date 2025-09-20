@@ -59,6 +59,9 @@ class Pathfinder:
                             border_ok = True
                             break
 
+                    if border_ok:
+                        graph[cid].append(nid)
+
         return graph
 
     def manhattan_distance(self, a: tuple[int, int], b: tuple[int, int]):
@@ -182,15 +185,15 @@ class Pathfinder:
         if start_c == goal_c:
             return self.create_8way_astar_path(start, goal, obstacles)
 
-        open_set = [(self.manhattan_distance(start_c, goal_c), 0, start_c, [start_c])]
-        visited = set()
-        cluster_path = None
-
         # Obstacle set changed, need to rebuild cluster links
         if not obstacles is self._obstacles:
             graph = self._compute_cluster_links(obstacles)
         else:
             graph = self._hpa_graph
+
+        open_set = [(self.manhattan_distance(start_c, goal_c), 0, start_c, [start_c])]
+        visited = set()
+        cluster_path = None
 
         while open_set:
             f, g, cur, path = heapq.heappop(open_set)
@@ -225,9 +228,12 @@ class Pathfinder:
             # Pick the closest border cell to our current position
             border_cells.sort(key=lambda p: self.manhattan_distance(p, current))
             if not border_cells:
-                return None
+                return self.create_8way_astar_path(start, goal, obstacles)
 
             next_goal = border_cells[0]
+            if next_goal == current:
+                continue
+
             # Try simple direct path first. If it has obstacles - fallback to A*
             tentative_path = self.create_simple_path(current, next_goal)
             if not set(tentative_path) & obstacles:
@@ -242,8 +248,13 @@ class Pathfinder:
             current = next_goal
 
         # Final segment inside last cluster
-        segment = self.create_8way_astar_path(current, goal, obstacles)
+        tentative_path = self.create_simple_path(current, goal)
+        if not set(tentative_path) & obstacles:
+            segment = tentative_path
+        else:
+            segment = self.create_8way_astar_path(current, goal, obstacles)
+
         if segment:
-            full_path.extend(segment[1:])
+            full_path.extend(segment)
 
         return full_path[1:]

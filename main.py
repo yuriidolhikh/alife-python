@@ -4,7 +4,7 @@ import uvloop
 
 from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask
 from config import (RELATIONS, FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
-                    MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS)
+                    MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS, GRID_Y_SIZE, GRID_X_SIZE)
 
 
 async def main(loop: uvloop.Loop, grid: MapGrid):
@@ -62,7 +62,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                         duration = random.randint(MIN_IDLE_DURATION, MAX_IDLE_DURATION)
                         tasks.append(loop.create_task(IdleTask(grid, squad, duration).execute()))
                     else:
-                        dest = random.choice(list(grid.get_grid().keys()))
+                        while (dest := (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))) in grid.get_obstacles(): pass
                         tasks.append(loop.create_task(MoveTask(grid, squad, dest).execute()))
 
         _, running = await asyncio.wait(tasks, timeout=1)

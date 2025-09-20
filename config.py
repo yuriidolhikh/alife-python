@@ -15,7 +15,7 @@ PATHFINDING_MODE = "diagonal-astar"  # simple, astar, diagonal-astar or hpa
 CLUSTER_SIZE = 40  # hpa only
 
 """Other parameters"""
-SHOW_GRID = True
+SHOW_GRID = False
 MAX_NUM_MESSAGES = 40  # max number of latest messages to display under the map grid
 GRID_X_SIZE = 40
 GRID_Y_SIZE = 24
