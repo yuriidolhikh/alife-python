@@ -1,13 +1,14 @@
 from dataclasses import dataclass, field
 
 from .actor import Actor
+from .types import Location
 
 
 @dataclass
 class Squad:
     """Squad on the grid, made up of multiple actors. Executes tasks"""
     faction: str
-    location: tuple[int, int]
+    location: Location
     actors: list = field(default_factory=list)  # list of actors in the squad
     has_task: bool = False
     in_combat: bool = False

@@ -7,12 +7,11 @@ from colorama import Fore, Style, just_fix_windows_console
 from typing import Optional
 
 from .actor import Actor
-from .squad import Squad
 from .pathfinder import Pathfinder
+from .squad import Squad
+from .types import Location
 
-from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, MAP
-
-type Location = tuple[int, int]
+from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, MAP, FACTIONS
 
 
 class MapGrid:
@@ -118,16 +117,19 @@ class MapGrid:
     def spawn(self, faction: str, location: Optional[Location] = None):
         """Spawn random faction squad on the map"""
 
-        num_actors = random.randint(1, 5)
-
         if location is None:
-            location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
-            # avoid spawning on top of existing squads
-            while location in self._grid or location in self._obstacles:
-                location = (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))
+            bias = FACTIONS[faction]["spawn_bias"]
+            lower_x, lower_y, upper_x, upper_y = (0, 0, GRID_X_SIZE, GRID_Y_SIZE)
+
+            if bias is not None:
+                lower_x, lower_y, upper_x, upper_y = self.get_spawn_area(FACTIONS[faction]["spawn_bias"])
+
+            # avoid spawning on top of obstacles
+            while (location := (random.randint(lower_x, upper_x), random.randint(lower_y, upper_y))) in self._obstacles: pass
 
         squad = Squad(faction, location)
         # Generate actors
+        num_actors = random.randint(1, 5)
         for _ in range(num_actors):
             squad.add_actor(Actor(faction, location))
 
@@ -135,6 +137,41 @@ class MapGrid:
         self.add_log_msg("INFO", f"Spawned a new {num_actors}-actor {faction.upper()} squad", location)
 
         return True
+
+    def get_spawn_area(self, bias: tuple[float, float], fractions: Optional[tuple[float, float]] = None):
+        """
+            Create a spawning area given a bias ((0.0, 0.0) being an upper left corner, (1.0, 1.0) being the lower right)
+            and a fraction parameter that determines the percentage of the grid in X and Y dimensions to include.
+            This method is used to spawn faction squads in their designated areas.
+        """
+        x_bias, y_bias = bias
+        # If no fractions are specified, default to a 20% of the grid
+        if fractions is None:
+            fractions = (0.2, 0.2)
+
+        fx = max(0.0, min(1.0, fractions[0]))
+        fy = max(0.0, min(1.0, fractions[1]))
+
+        box_w = GRID_X_SIZE * fx
+        box_h = GRID_Y_SIZE * fy
+
+        # Center coordinates based on bias
+        cx = x_bias * GRID_X_SIZE
+        cy = y_bias * GRID_Y_SIZE
+
+        # Compute boundaries
+        x_min = int(round(cx - box_w / 2))
+        x_max = int(round(cx + box_w / 2))
+        y_min = int(round(cy - box_h / 2))
+        y_max = int(round(cy + box_h / 2))
+
+        # Clamp to grid
+        x_min = max(0, x_min)
+        y_min = max(0, y_min)
+        x_max = min(GRID_X_SIZE, x_max)
+        y_max = min(GRID_Y_SIZE, y_max)
+
+        return [x_min, y_min, x_max, y_max]
 
     def remove(self, entity: type[Actor | Squad], square: Optional[Location] = None):
         """Remove actor or squad from the grid. If grid square is not provided - attempt to get location from the entity"""

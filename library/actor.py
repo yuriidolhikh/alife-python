@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
+from .types import Location
+
 
 @dataclass
 class Actor:
     """Individual actor on the grid"""
     faction: str
-    location: tuple
+    location: Location
     looted: bool = False
 
     def __str__(self):

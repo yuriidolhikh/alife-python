@@ -3,8 +3,9 @@ import random
 import uvloop
 
 from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask
-from config import (RELATIONS, FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
-                    MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS, GRID_Y_SIZE, GRID_X_SIZE)
+from config import (FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
+                    MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS,
+                    GRID_Y_SIZE, GRID_X_SIZE)
 
 
 async def main(loop: uvloop.Loop, grid: MapGrid):
@@ -28,7 +29,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                 while j < len(squadlist):
                     nxt = squadlist[j]
                     # not hostile to each other OR squad already dead OR is fighting someone else
-                    if squad.faction not in RELATIONS[nxt.faction]\
+                    if nxt.faction not in FACTIONS[squad.faction]["hostile"]\
                     or not nxt.actors\
                     or (squad.in_combat or nxt.in_combat):
                         j += 1
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         # Spawn a new random squad every X seconds
         while True:
             await asyncio.sleep(SPAWN_FREQUENCY)
-            grid.spawn(random.choice(FACTIONS))
+            grid.spawn(random.choice(list(FACTIONS.keys())))
 
     main_loop = uvloop.new_event_loop()
     main_loop.create_task(main(main_loop, map_grid))

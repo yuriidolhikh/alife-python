@@ -4,8 +4,9 @@ import random
 from typing import Awaitable
 
 from .actor import Actor
-from .squad import Squad
 from .grid import MapGrid
+from .squad import Squad
+from .types import Location
 
 from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION
 
@@ -25,7 +26,7 @@ class Task:
 class CombatTask(Task):
     """Handles combat between two hostile squads"""
 
-    def __init__(self, grid, left, right):
+    def __init__(self, grid: MapGrid, left: Squad, right: Squad):
         self._steps = [self._run(grid, left, right)]
 
     async def _run(self, grid: MapGrid, left: Squad, right: Squad):
@@ -57,10 +58,10 @@ class CombatTask(Task):
 class MoveTask(Task):
     """Handles movement, duh"""
 
-    def __init__(self, grid, squad, dest):
+    def __init__(self, grid: MapGrid, squad: Squad, dest: Location):
         self._steps = [self._run(grid, squad, dest)]
 
-    async def _run(self, grid: MapGrid, squad: Squad, dest: tuple[int, int]):
+    async def _run(self, grid: MapGrid, squad: Squad, dest: Location):
         if squad.location == dest:  # already there
             return True
 
@@ -98,7 +99,7 @@ class MoveTask(Task):
 class IdleTask(Task):
     """Handles waiting at the current location"""
 
-    def __init__(self, grid, squad, duration):
+    def __init__(self, grid: MapGrid, squad: Squad, duration: int):
         self._steps = [self._run(grid, squad, duration)]
 
     async def _run(self, grid: MapGrid, squad: Squad, duration: int):
@@ -113,7 +114,7 @@ class IdleTask(Task):
 class LootTask(Task):
     """Handles looting of bodies"""
 
-    def __init__(self, grid, squad, actor):
+    def __init__(self, grid: MapGrid, squad: Squad, actor: Actor):
         self._steps = [self._run(grid, squad, actor)]
 
     async def _run(self, grid: MapGrid, squad: Squad, actor: Actor):
