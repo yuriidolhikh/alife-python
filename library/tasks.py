@@ -8,7 +8,7 @@ from .grid import MapGrid
 from .squad import Squad
 from .types import Location
 
-from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION
+from config import COMBAT_DURATION, TRAVEL_DURATION, LOOT_DURATION, FACTIONS
 
 
 class Task:
@@ -33,8 +33,19 @@ class CombatTask(Task):
 
         await asyncio.sleep(COMBAT_DURATION)
 
+        left_firepower = len(left.actors) * FACTIONS[left.faction]["relative_firepower"]
+        right_firepower = len(right.actors) * FACTIONS[right.faction]["relative_firepower"]
+
+        # determine "winning" squad, weighted by firepower.
+        # More squad members * higher relative firepower = higher overall power
+        winner = random.choices([left, right], weights=[left_firepower, right_firepower])[0]
+        def biased_outcome(low, high, inverted=False):
+            """Generate a random number of losses, with bias towards a specific end of the range"""
+            bias = inverted and 1 - (random.random() ** 3.0) or random.random() ** 3.0
+            return round(low + (high - low) * bias)
+
         for squad in (left, right):
-            losses = random.randint(0, len(squad.actors))
+            losses = biased_outcome(0, len(squad.actors), squad is not winner)
 
             msg = f"{squad.faction} squad({len(squad.actors)}) {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
             if losses == len(squad.actors):

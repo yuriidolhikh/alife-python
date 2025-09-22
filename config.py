@@ -23,9 +23,9 @@ GRID_Y_SIZE = 24
 
 FACTIONS = {
     "stalker": {
-        "spawn_bias": (0.5, 0.8),
-        "relative_firepower": 1.0,
-        "hostile": ("mercenary", "bandit", "military", "monolith", "mutant")
+        "spawn_bias": (0.5, 0.8),  # spawn bias on the grid, (0.5, 0.8) here being lower-center
+        "relative_firepower": 1.0,  # relative firepower of the faction squad, 1.0 being the baseline
+        "hostile": ("mercenary", "bandit", "military", "monolith", "mutant")  # factions hostile to the current faction
         },
     "bandit": {
         "spawn_bias": (0.5, 0.5),
@@ -59,7 +59,7 @@ FACTIONS = {
     },
     "mutant": {
         "spawn_bias": None,  # can spawn anywhere
-        "relative_firepower": 2.0,
+        "relative_firepower": 1.6,
         "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "monolith")
     }
 }
