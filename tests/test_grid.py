@@ -5,7 +5,7 @@ def test_grid_logger(monkeypatch):
     monkeypatch.setattr('library.grid.SHOW_GRID', True)
 
     grid = MapGrid()
-    grid.add_log_msg("INFO", " test")
+    grid.add_log_msg("INFO", "test")
 
     assert len(grid._msg_log) == 1, "Message should be added to the message log"
     assert grid._msg_log.pop() == "[INFO] TEST", "Message in the log should be correctly formatted"

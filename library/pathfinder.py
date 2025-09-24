@@ -28,10 +28,8 @@ class Pathfinder:
                 directly into create_path method
             """
             print("[INFO] PRE-COMPUTING HPA* CLUSTERS. THIS MAY TAKE A WHILE...")
-            self._precompute_clusters()
-
-            graph = self._compute_cluster_links(obstacles)
-            self._hpa_graph = graph
+            self._clusters = self._precompute_clusters()
+            self._hpa_graph = self._compute_cluster_links(obstacles)
 
     def _precompute_clusters(self):
         """Pre-compute HPA clusters and cluster links"""
@@ -44,7 +42,7 @@ class Pathfinder:
                 clusters[cid] = [(i, j) for i in range(x, min(x + CLUSTER_SIZE, GRID_X_SIZE))
                                           for j in range(y, min(y + CLUSTER_SIZE, GRID_Y_SIZE))]
 
-        self._clusters = clusters
+        return clusters
 
     def _compute_cluster_links(self, obstacles: set[Location]):
         graph = defaultdict(list)
@@ -75,14 +73,16 @@ class Pathfinder:
     def create_path(self, start: Location, dest: Location, obstacles: Optional[set[Location]] = None):
         """Create a path using a specified pathfinder algorithm"""
 
-        obstacle_set = obstacles is not None and obstacles or self._obstacles
+        final_obstacle_set = self._obstacles
+        if obstacles:
+            final_obstacle_set = self._obstacles.union(obstacles)
 
         if PATHFINDING_MODE == "hpa":
-            path = self.create_hpa_path(start, dest, obstacle_set)
+            path = self.create_hpa_path(start, dest, final_obstacle_set)
         elif PATHFINDING_MODE == "astar":
-            path = self.create_astar_path(start, dest, obstacle_set)
+            path = self.create_astar_path(start, dest, final_obstacle_set)
         elif PATHFINDING_MODE == "diagonal-astar":
-            path = self.create_8way_astar_path(start, dest, obstacle_set)
+            path = self.create_8way_astar_path(start, dest, final_obstacle_set)
         else:
             path = self.create_simple_path(start, dest)
 
@@ -188,7 +188,7 @@ class Pathfinder:
             return self.create_8way_astar_path(start, goal, obstacles)
 
         # Obstacle set changed, need to rebuild cluster links
-        if not obstacles is self._obstacles:
+        if obstacles != self._obstacles:
             graph = self._compute_cluster_links(obstacles)
         else:
             graph = self._hpa_graph

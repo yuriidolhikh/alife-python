@@ -21,6 +21,9 @@ MAP = "map_40x24"  # make sure map dimensions match grid dimensions
 GRID_X_SIZE = 40
 GRID_Y_SIZE = 24
 
+RANKS = ("Rookie", "Novice", "Experienced", "Veteran", "Master", "Legend")  # rank progression of an actor
+EXP_PER_RANK = 2000  # Amount of exp required to advance a rank
+
 FACTIONS = {
     "stalker": {
         "spawn_bias": (0.5, 0.8),  # spawn bias on the grid, (0.5, 0.8) here being lower-center

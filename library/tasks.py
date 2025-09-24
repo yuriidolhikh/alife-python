@@ -132,9 +132,12 @@ class LootTask(Task):
         self._steps = [self._run(grid, squad, actor)]
 
     async def _run(self, grid: MapGrid, squad: Squad, actor: Actor):
-        grid.add_log_msg("LOOT",
-            f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction} actor ({actor.rank}) body...", actor.location
-        )
+        msg = f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction}"
+        if actor.faction != "mutant":
+            msg += f" actor ({actor.rank})"
+        msg += " body..."
+
+        grid.add_log_msg("LOOT", msg, actor.location)
 
         squad.is_looting = True
         actor.looted = True

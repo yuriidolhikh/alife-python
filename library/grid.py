@@ -95,21 +95,23 @@ class MapGrid:
     def add_log_msg(self, msg_type: str, message: str, square: Optional[Location] = None):
         """Logging helper"""
 
+        parts = []
         if msg_type == "COMBAT":
-            logged_msg = f"{Fore.RED}[COMBAT]{Style.RESET_ALL}"
+            parts.append(f"{Fore.RED}[COMBAT]{Style.RESET_ALL}")
         elif msg_type == "LOOT":
-            logged_msg = f"{Fore.YELLOW}[LOOT]{Style.RESET_ALL}"
+            parts.append(f"{Fore.YELLOW}[LOOT]{Style.RESET_ALL}")
         elif msg_type == "MOVE":
-            logged_msg = f"{Fore.GREEN}[MOVE]{Style.RESET_ALL}"
+            parts.append(f"{Fore.GREEN}[MOVE]{Style.RESET_ALL}")
         elif msg_type == "IDLE":
-            logged_msg = f"{Fore.CYAN}[IDLE]{Style.RESET_ALL}"
+            parts.append(f"{Fore.CYAN}[IDLE]{Style.RESET_ALL}")
         else:
-            logged_msg = "[INFO]"
+            parts.append("[INFO]")
 
         if square:
-            logged_msg += f"[SQUARE={square}] "
+            parts.append(f"[SQUARE={square}]")
 
-        logged_msg += message.upper()
+        parts.append(message.upper())
+        logged_msg = " ".join(parts)
 
         if SHOW_GRID:
             self._msg_log.append(logged_msg)
