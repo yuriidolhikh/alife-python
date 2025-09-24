@@ -1,7 +1,6 @@
-# alife-python
 This is a hypothetical implementation of STALKER 2 offline A-Life in Python 3.
 
-![demo](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThnZzhzbno1NmU1YXJ3eTE0ZzV0cHRoZjY0OHpjYjdwam5tenByZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VVh03jGxzHFca1aLjQ/giphy.gif)
+<img width="1440" height="819" alt="Screenshot 2025-09-24 at 14 22 31" src="https://github.com/user-attachments/assets/09001260-bbfd-49e4-9e6e-8d04277e3c76" />
 
 Squads on the grid can
 - be tasked to wait at current location or move to a new one
