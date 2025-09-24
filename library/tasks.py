@@ -19,8 +19,11 @@ class Task:
     _steps: list[Awaitable[bool]]
 
     async def execute(self):
+        res = []
         while self._steps:
-            await self._steps.pop(0)
+            res.append(await self._steps.pop(0))
+
+        return res
 
 
 class CombatTask(Task):
@@ -33,11 +36,11 @@ class CombatTask(Task):
 
         await asyncio.sleep(COMBAT_DURATION)
 
-        left_firepower = len(left.actors) * FACTIONS[left.faction]["relative_firepower"]
-        right_firepower = len(right.actors) * FACTIONS[right.faction]["relative_firepower"]
+        left_firepower = sum([a.experience for a in left.actors]) * FACTIONS[left.faction]["relative_firepower"]
+        right_firepower = sum([a.experience for a in right.actors]) * FACTIONS[right.faction]["relative_firepower"]
 
         # determine "winning" squad, weighted by firepower.
-        # More squad members * higher relative firepower = higher overall power
+        # More squad members with more experience + higher relative firepower = higher overall power
         winner = random.choices([left, right], weights=[left_firepower, right_firepower])[0]
         def biased_outcome(low, high, inverted=False):
             """Generate a random number of losses, with bias towards a specific end of the range"""
@@ -63,7 +66,7 @@ class CombatTask(Task):
         left.in_combat = False
         right.in_combat = False
 
-        return True
+        return ["combat", winner, True]
 
 
 class MoveTask(Task):
@@ -74,11 +77,11 @@ class MoveTask(Task):
 
     async def _run(self, grid: MapGrid, squad: Squad, dest: Location):
         if squad.location == dest:  # already there
-            return True
+            return ["move", squad, False]
 
         path = grid.pathfinder.create_path(squad.location, dest)
         if path is None:
-            return False
+            return ["move", squad, False]
 
         grid.add_log_msg("MOVE", f"{squad.faction} squad({len(squad.actors)}) is moving to {dest}", squad.location)
         squad.has_task = True
@@ -104,7 +107,7 @@ class MoveTask(Task):
 
         squad.has_task = False
 
-        return True
+        return ["move", squad, True]
 
 
 class IdleTask(Task):
@@ -119,7 +122,7 @@ class IdleTask(Task):
         await asyncio.sleep(duration)
         squad.has_task = False
 
-        return True
+        return ["idle", squad, False]
 
 
 class LootTask(Task):
@@ -130,7 +133,7 @@ class LootTask(Task):
 
     async def _run(self, grid: MapGrid, squad: Squad, actor: Actor):
         grid.add_log_msg("LOOT",
-            f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction} actor body...", actor.location
+            f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction} actor ({actor.rank}) body...", actor.location
         )
 
         squad.is_looting = True
@@ -139,4 +142,4 @@ class LootTask(Task):
         grid.remove(actor)
         squad.is_looting = False
 
-        return True
+        return ["loot", squad, False]

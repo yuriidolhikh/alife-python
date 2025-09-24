@@ -25,41 +25,57 @@ FACTIONS = {
     "stalker": {
         "spawn_bias": (0.5, 0.8),  # spawn bias on the grid, (0.5, 0.8) here being lower-center
         "relative_firepower": 1.0,  # relative firepower of the faction squad, 1.0 being the baseline
-        "hostile": ("mercenary", "bandit", "military", "monolith", "mutant")  # factions hostile to the current faction
+        "hostile": ("mercenary", "bandit", "military", "monolith", "mutant"),  # factions hostile to the current faction
+        "can_loot": True,  # determines if this faction can loot bodies
+        "can_gain_exp": True  # determines if actors of this faction can gain exp
         },
     "bandit": {
         "spawn_bias": (0.5, 0.5),
         "relative_firepower": 0.9,
-        "hostile": ("stalker", "mercenary", "ward", "military", "monolith", "mutant")
+        "hostile": ("stalker", "mercenary", "ward", "military", "monolith", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
         },
     "ward": {
         "spawn_bias": (0.3, 0.6),
         "relative_firepower": 1.4,
-        "hostile": ("spark", "bandit", "mercenary", "monolith", "mutant")
+        "hostile": ("spark", "bandit", "mercenary", "monolith", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
     },
     "spark": {
         "spawn_bias": (0.0, 0.5),
         "relative_firepower": 1.4,
-        "hostile": ("ward", "monolith", "mutant")
+        "hostile": ("ward", "monolith", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
     },
     "mercenary": {
         "spawn_bias": (0.0, 0.8),
         "relative_firepower": 1.5,
-        "hostile": ("stalker", "bandit", "ward", "military", "monolith", "mutant")
+        "hostile": ("stalker", "bandit", "ward", "military", "monolith", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
     },
     "military": {
         "spawn_bias": (0.5, 0.2),
         "relative_firepower": 1.2,
-        "hostile": ("stalker", "bandit", "mercenary", "monolith", "mutant")
+        "hostile": ("stalker", "bandit", "mercenary", "monolith", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
     },
     "monolith": {
         "spawn_bias": (0.1, 0.1),
         "relative_firepower": 1.8,
-        "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "mutant")
+        "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "mutant"),
+        "can_loot": True,
+        "can_gain_exp": True
     },
     "mutant": {
         "spawn_bias": None,  # can spawn anywhere
         "relative_firepower": 1.6,
-        "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "monolith")
+        "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "monolith"),
+        "can_loot": False,
+        "can_gain_exp": False
     }
 }

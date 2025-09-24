@@ -2,18 +2,36 @@ from library import Actor
 
 
 def test_actor_init():
-    actor = Actor(faction="test_faction", location=(0, 99))
-    assert actor.faction == "test_faction", "Actor faction should be set correctly"
+    actor = Actor(faction="stalker", location=(0, 99))
+    assert actor.faction == "stalker", "Actor faction should be set correctly"
     assert actor.location == (0, 99), "Actor location should be set correctly"
     assert not actor.looted, "Actor should not be marked as looted"
-    assert str(actor) == "Test_faction actor at location (0, 99)", "Actor string should be correct"
+    assert str(actor) == "Stalker actor (Rookie) at location (0, 99)", "Actor string should be correct"
 
 
 def test_actor_update():
-    actor = Actor(faction="test_faction", location=(0, 99))
+    actor = Actor(faction="stalker", location=(0, 99))
     actor.looted = True
     actor.location = (55, 14)
-    assert actor.faction == "test_faction", "Actor faction should be set correctly"
+    assert actor.faction == "stalker", "Actor faction should be set correctly"
     assert actor.location == (55, 14), "Actor location should be updated correctly"
     assert actor.looted, "Actor should be marked as looted"
-    assert str(actor) == "Test_faction actor at location (55, 14)", "Actor string should be correct"
+    assert str(actor) == "Stalker actor (Rookie) at location (55, 14)", "Actor string should be correct"
+
+
+def test_actor_exp_and_rank():
+    actor = Actor(faction="stalker", location=(0, 99))
+    actor.gain_exp(2000)
+    actor.rank_up()
+
+    assert actor.rank == "Novice", "Actor should rank up according to current exp"
+
+    actor.gain_exp(3000)
+    actor.rank_up()
+
+    assert actor.rank == "Experienced", "Actor should rank up according to current exp"
+
+    actor.gain_exp(9999)
+    actor.rank_up()
+
+    assert actor.rank == "Legend", "Actor should rank up to 'legend' correctly"

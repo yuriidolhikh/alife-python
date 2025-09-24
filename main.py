@@ -47,7 +47,7 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                     continue
 
                 # Loot if there are bodies in the same square. Prevents movement
-                if actorlist:
+                if actorlist and FACTIONS[squad.faction]["can_loot"]:
                     max_lootable_corpses = min(len(actorlist), len(squad.actors))  # 1 guy loots 1 corpse at a time
                     for actor in filter(lambda x: not x.looted, actorlist[:max_lootable_corpses]):
                         tasks.append(loop.create_task(LootTask(grid, squad, actor).execute()))
@@ -66,8 +66,17 @@ async def main(loop: uvloop.Loop, grid: MapGrid):
                         while (dest := (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))) in grid.get_obstacles(): pass
                         tasks.append(loop.create_task(MoveTask(grid, squad, dest).execute()))
 
-        _, running = await asyncio.wait(tasks, timeout=1)
+        complete, running = await asyncio.wait(tasks, timeout=1)
         tasks = list(running)
+
+        # Award task exp to eligible squads
+        for task in complete:
+            for item in task.result():
+                _, squad, exp_eligible = item
+                if FACTIONS[squad.faction]["can_gain_exp"] and exp_eligible:
+                    for actor in squad.actors:
+                        actor.gain_exp(random.randint(100, 300))
+                        actor.rank_up()
 
         grid.cleanup()
 

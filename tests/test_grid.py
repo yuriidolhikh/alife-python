@@ -13,7 +13,7 @@ def test_grid_logger(monkeypatch):
 
 def test_grid_spawner():
     grid = MapGrid()
-    grid.spawn("test_faction", (5, 33))
+    grid.spawn("stalker", (5, 33))
 
     grid_dict = grid.get_grid()
     assert len(grid_dict.keys()) == 1, "Only one square should be populated"
@@ -24,13 +24,13 @@ def test_grid_spawner():
 
     squad = entities[0][0]
     assert isinstance(squad, Squad), "Should be correct entity object"
-    assert squad.faction == "test_faction", "Entity should have correct faction set"
+    assert squad.faction == "stalker", "Entity should have correct faction set"
     assert squad.location == (5, 33), "Entity should have correct location set"
 
 
 def test_grid_remove():
     grid = MapGrid()
-    grid.spawn("test_faction", (4, 22))
+    grid.spawn("stalker", (4, 22))
 
     grid_dict = grid.get_grid()
 

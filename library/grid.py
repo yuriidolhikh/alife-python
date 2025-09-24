@@ -23,12 +23,16 @@ class MapGrid:
         self._squares_to_delete = set()
 
         dirname = os.path.dirname(__file__)
-        mapfile = os.path.join(dirname, f'../maps/{MAP}')
+        mapfile = os.path.abspath(os.path.join(dirname, f'../maps/{MAP}'))
 
-        with open(mapfile, 'rb') as f:
-            obstacles = pickle.load(f)
-            self._obstacles = obstacles
+        try:
+            with open(mapfile, 'rb') as f:
+                obstacles = pickle.load(f)
+        except Exception as e:
+            self.add_log_msg("INFO", f" Failed to load obstacle data: {e}")
+            obstacles = set()
 
+        self._obstacles = obstacles
         self.pathfinder = Pathfinder(obstacles)
 
         # Fix colored display on Windows
@@ -131,7 +135,14 @@ class MapGrid:
         # Generate actors
         num_actors = random.randint(1, 5)
         for _ in range(num_actors):
-            squad.add_actor(Actor(faction, location))
+            actor = Actor(faction, location)
+
+            # Set random exp value and appropriate rank for factions that support it
+            if FACTIONS[faction]["can_gain_exp"]:
+                actor.gain_exp(random.randint(0, 9001))
+                actor.rank_up()
+
+            squad.add_actor(actor)
 
         self.place(squad, location)
         self.add_log_msg("INFO", f"Spawned a new {num_actors}-actor {faction.upper()} squad", location)
