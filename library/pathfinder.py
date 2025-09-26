@@ -9,7 +9,7 @@ from .types import Location
 
 
 class Pathfinder:
-    """Defines the map and contains all map-related function"""
+    """Everything related to finding a path on the grid"""
 
     def __init__(self, obstacles: set[Location]):
 

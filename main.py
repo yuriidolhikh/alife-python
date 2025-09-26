@@ -1,6 +1,6 @@
 import asyncio
+import os
 import random
-import uvloop
 
 from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask
 from config import (FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
@@ -8,7 +8,7 @@ from config import (FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
                     GRID_Y_SIZE, GRID_X_SIZE)
 
 
-async def main(loop: uvloop.Loop, grid: MapGrid):
+async def main(loop, grid: MapGrid):
     tasks = []
 
     while True:
@@ -97,7 +97,12 @@ if __name__ == "__main__":
             await asyncio.sleep(SPAWN_FREQUENCY)
             grid.spawn(random.choice(list(FACTIONS.keys())))
 
-    main_loop = uvloop.new_event_loop()
+    if os.name == "nt":
+        main_loop = asyncio.new_event_loop()
+    else:
+        import uvloop
+        main_loop = uvloop.new_event_loop()
+
     main_loop.create_task(main(main_loop, map_grid))
     main_loop.create_task(scheduled_spawner(map_grid))
     main_loop.run_forever()
