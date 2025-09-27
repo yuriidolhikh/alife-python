@@ -16,7 +16,7 @@ class Task:
 
     # steps of task execution
     # can chain multiple coroutines to create more complex tasks
-    _steps: list[Awaitable[bool]]
+    _steps: list[Awaitable]
 
     async def execute(self):
         res = []

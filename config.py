@@ -12,14 +12,14 @@ LOOT_DURATION = 5  # duration of looting task
 
 """Pathfinding parameters"""
 PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
-CLUSTER_SIZE = 10  # hpa only
+CLUSTER_SIZE = 100  # hpa only
 
 """Other parameters"""
 SHOW_GRID = True
 MAX_NUM_MESSAGES = 40  # max number of latest messages to display under the map grid
-MAP = "map_40x24"  # make sure map dimensions match grid dimensions
-GRID_X_SIZE = 40
-GRID_Y_SIZE = 24
+MAP = "pois_obstacles_map_1000x857"  # make sure map dimensions match grid dimensions
+GRID_X_SIZE = 1000
+GRID_Y_SIZE = 857
 
 RANKS = ("Rookie", "Novice", "Experienced", "Veteran", "Master", "Legend")  # rank progression of an actor
 EXP_PER_RANK = 2000  # Amount of exp required to advance a rank

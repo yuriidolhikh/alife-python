@@ -70,6 +70,9 @@ class Pathfinder:
     def chebyshev_distance(self, a: Location, b: Location):
         return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
+    def in_bounds(self, x: int, y: int):
+        return 0 <= x < GRID_X_SIZE and 0 <= y < GRID_Y_SIZE
+
     def create_path(self, start: Location, dest: Location, obstacles: Optional[set[Location]] = None):
         """Create a path using a specified pathfinder algorithm"""
 
@@ -112,10 +115,6 @@ class Pathfinder:
 
     def create_8way_astar_path(self, start: Location, goal: Location, obstacles: set[Location]):
         """A* pathfinding on a 2D grid with 8-direction movement"""
-        obstacle_set = set(obstacles)
-
-        def in_bounds(p):
-            return 0 <= p[0] < GRID_X_SIZE and 0 <= p[1] < GRID_Y_SIZE
 
         open_set = []
         heapq.heappush(open_set, (self.chebyshev_distance(start, goal), 0, start))
@@ -135,7 +134,7 @@ class Pathfinder:
 
             for dx, dy in self._neighbors_including_diagonals:
                 neighbor = (current[0] + dx, current[1] + dy)
-                if not in_bounds(neighbor) or neighbor in obstacle_set:
+                if not self.in_bounds(*neighbor) or neighbor in obstacles:
                     continue
                 # Diagonals are more expensive
                 step_cost = 1.4142 if dx != 0 and dy != 0 else 1.0
@@ -171,7 +170,7 @@ class Pathfinder:
             visited.add(current)
             for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
                 nx, ny = current[0] + dx, current[1] + dy
-                if 0 <= nx < GRID_X_SIZE and 0 <= ny < GRID_Y_SIZE and (nx, ny) not in obstacles:
+                if self.in_bounds(nx, ny) and (nx, ny) not in obstacles:
                     heapq.heappush(open_set, (g + 1 + self.manhattan_distance((nx, ny), goal), g + 1, (nx, ny), path + [(nx, ny)]))
 
         return None

@@ -27,13 +27,12 @@ class MapGrid:
 
         try:
             with open(mapfile, 'rb') as f:
-                obstacles = pickle.load(f)
+                self._area_map = pickle.load(f)
         except Exception as e:
-            self.add_log_msg("INFO", f" Failed to load obstacle data: {e}")
-            obstacles = set()
+            self.add_log_msg("INFO", f" Failed to load map data: {e}")
+            self._area_map = {"pois": set(), "fields": set(), "traders": set(), "obstacles": set()}
 
-        self._obstacles = obstacles
-        self.pathfinder = Pathfinder(obstacles)
+        self.pathfinder = Pathfinder(self._area_map["obstacles"])
 
         # Fix colored display on Windows
         just_fix_windows_console()
@@ -42,7 +41,7 @@ class MapGrid:
         return self._grid
 
     def get_obstacles(self):
-        return self._obstacles
+        return self._area_map["obstacles"]
 
     def draw(self):
         """Draw current grid state in console"""
@@ -60,8 +59,14 @@ class MapGrid:
         for r in rows:
             row_str = f"{r:>2} |"
             for c in cols:
-                if ((c, r)) in self._obstacles:
+                if ((c, r)) in self._area_map["obstacles"]:
                     content = "#"
+                elif ((c, r)) in self._area_map["traders"]:
+                    content = "T"
+                elif ((c, r)) in self._area_map["fields"]:
+                    content = "F"
+                elif ((c, r)) in self._area_map["pois"]:
+                    content = "P"
                 else:
                     cell = self._grid.get((c, r), ([], []))
                     if cell[0]:
@@ -131,7 +136,7 @@ class MapGrid:
                 lower_x, lower_y, upper_x, upper_y = self.get_spawn_area(FACTIONS[faction]["spawn_bias"])
 
             # avoid spawning on top of obstacles
-            while (location := (random.randint(lower_x, upper_x), random.randint(lower_y, upper_y))) in self._obstacles: pass
+            while (location := (random.randint(lower_x, upper_x), random.randint(lower_y, upper_y))) in self._area_map["obstacles"]: pass
 
         squad = Squad(faction, location)
         # Generate actors
