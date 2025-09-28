@@ -150,12 +150,6 @@ class MapGrid:
         num_actors = random.randint(1, 5)
         for _ in range(num_actors):
             actor = Actor(faction, location)
-
-            # Set random exp value and appropriate rank for factions that support it
-            if FACTIONS[faction]["can_gain_exp"]:
-                actor.gain_exp(random.randint(0, 9001))
-                actor.rank_up()
-
             squad.add_actor(actor)
 
         self.place(squad, location)

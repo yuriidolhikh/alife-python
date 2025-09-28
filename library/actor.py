@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+import random
 from typing import Optional
 
 from .types import Location
 
-from config import RANKS, EXP_PER_RANK
+from config import RANKS, EXP_PER_RANK, FACTIONS
 
 
 @dataclass
@@ -14,6 +15,16 @@ class Actor:
     rank: str = RANKS[0]
     experience: int = 0
     looted: bool = False
+
+    def __post_init__(self):
+        """Set-up actor after creation"""
+        if FACTIONS[self.faction]["can_gain_exp"]:
+            if not self.experience: self.gain_exp(random.randint(1, (len(RANKS) - 1) * EXP_PER_RANK))
+        else:
+            # assume that actors that don't gain exp are "average" for combat purposes
+            self.gain_exp(((len(RANKS) - 1) * EXP_PER_RANK) // 2)
+
+        self.rank_up()
 
     def __str__(self):
         return f"{self.faction.capitalize()} actor ({self.rank}) at location {self.location}"

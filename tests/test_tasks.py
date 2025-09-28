@@ -40,8 +40,8 @@ async def test_combat_task(monkeypatch):
 @pytest.mark.asyncio
 async def test_move_task(monkeypatch):
     grid = MapGrid()
-    squad = Squad("test_faction", (0, 0))
-    squad.add_actor(Actor("test_faction", (0, 0)))
+    squad = Squad("stalker", (0, 0))
+    squad.add_actor(Actor("stalker", (0, 0)))
 
     monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
@@ -69,10 +69,10 @@ async def test_idle_task():
 async def test_loot_task(monkeypatch):
     grid = MapGrid()
 
-    squad = Squad("test_faction1", (1, 1))
-    squad.add_actor(Actor("test_faction1", (1, 1)))
+    squad = Squad("stalker", (1, 1))
+    squad.add_actor(Actor("stalker", (1, 1)))
 
-    lootable = Actor("test_faction2", (1, 1))
+    lootable = Actor("ward", (1, 1))
     grid.place(lootable, (1, 1))
 
     monkeypatch.setattr('library.tasks.LOOT_DURATION', 0)

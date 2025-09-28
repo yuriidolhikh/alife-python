@@ -2,7 +2,7 @@ from library import Actor
 
 
 def test_actor_init():
-    actor = Actor(faction="stalker", location=(0, 99))
+    actor = Actor(faction="stalker", location=(0, 99), experience=100)
     assert actor.faction == "stalker", "Actor faction should be set correctly"
     assert actor.location == (0, 99), "Actor location should be set correctly"
     assert not actor.looted, "Actor should not be marked as looted"
@@ -10,7 +10,7 @@ def test_actor_init():
 
 
 def test_actor_update():
-    actor = Actor(faction="stalker", location=(0, 99))
+    actor = Actor(faction="stalker", location=(0, 99), experience=100)
     actor.looted = True
     actor.location = (55, 14)
     assert actor.faction == "stalker", "Actor faction should be set correctly"
@@ -20,7 +20,7 @@ def test_actor_update():
 
 
 def test_actor_exp_and_rank():
-    actor = Actor(faction="stalker", location=(0, 99))
+    actor = Actor(faction="stalker", location=(0, 99), experience=100)
     actor.gain_exp(2000)
     actor.rank_up()
 

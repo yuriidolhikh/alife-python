@@ -15,7 +15,7 @@ PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
 CLUSTER_SIZE = 10  # hpa only
 
 """Other parameters"""
-SHOW_GRID = True
+SHOW_GRID = True  # enables the map grid display in terminal (larger grids may not fit)
 MAX_NUM_MESSAGES = 40  # max number of latest messages to display under the map grid
 MAP = "pois_obstacles_map_100x85"  # make sure map dimensions match grid dimensions
 GRID_X_SIZE = 100
@@ -53,7 +53,7 @@ FACTIONS = {
         "can_hunt_artifacts": False
     },
     "spark": {
-        "spawn_bias": (0.0, 0.5),
+        "spawn_bias": (0.1, 0.5),
         "relative_firepower": 1.4,
         "hostile": ("ward", "monolith", "mutant"),
         "can_loot": True,
@@ -62,7 +62,7 @@ FACTIONS = {
         "can_hunt_artifacts": False
     },
     "mercenary": {
-        "spawn_bias": (0.0, 0.8),
+        "spawn_bias": (0.1, 0.8),
         "relative_firepower": 1.5,
         "hostile": ("stalker", "bandit", "ward", "military", "monolith", "mutant"),
         "can_loot": True,
@@ -71,7 +71,7 @@ FACTIONS = {
         "can_hunt_artifacts": False
     },
     "military": {
-        "spawn_bias": (0.5, 0.2),
+        "spawn_bias": (0.5, 0.3),
         "relative_firepower": 1.2,
         "hostile": ("stalker", "bandit", "mercenary", "monolith", "mutant"),
         "can_loot": True,
@@ -80,7 +80,7 @@ FACTIONS = {
         "can_hunt_artifacts": False
     },
     "monolith": {
-        "spawn_bias": (0.1, 0.1),
+        "spawn_bias": (0.2, 0.0),
         "relative_firepower": 1.8,
         "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "mutant"),
         "can_loot": True,
@@ -90,7 +90,7 @@ FACTIONS = {
     },
     "mutant": {
         "spawn_bias": None,  # can spawn anywhere
-        "relative_firepower": 1.6,
+        "relative_firepower": 2.0,
         "hostile": ("stalker", "bandit", "ward", "spark", "mercenary", "military", "monolith"),
         "can_loot": False,
         "can_gain_exp": False,
