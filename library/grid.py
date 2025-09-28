@@ -24,15 +24,22 @@ class MapGrid:
 
         dirname = os.path.dirname(__file__)
         mapfile = os.path.abspath(os.path.join(dirname, f'../maps/{MAP}'))
+        area_map = {"pois": set(), "fields": set(), "traders": set(), "obstacles": set()}
 
         try:
             with open(mapfile, 'rb') as f:
-                self._area_map = pickle.load(f)
+                tentative_map = pickle.load(f)
+                if isinstance(tentative_map, set):  # retain support for simple maps
+                    area_map = {"pois": set(), "fields": set(), "traders": set(), "obstacles": tentative_map}
+                else:
+                    area_map = tentative_map
+
         except Exception as e:
             self.add_log_msg("INFO", f" Failed to load map data: {e}")
-            self._area_map = {"pois": set(), "fields": set(), "traders": set(), "obstacles": set()}
+            area_map = {"pois": set(), "fields": set(), "traders": set(), "obstacles": set()}
 
-        self.pathfinder = Pathfinder(self._area_map["obstacles"])
+        self._area_map = area_map
+        self.pathfinder = Pathfinder(area_map["obstacles"])
 
         # Fix colored display on Windows
         just_fix_windows_console()
