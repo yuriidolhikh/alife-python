@@ -2,10 +2,8 @@ import asyncio
 import os
 import random
 
-from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask
-from config import (FACTIONS, SPAWN_FREQUENCY, MIN_IDLE_DURATION,
-                    MAX_IDLE_DURATION, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS,
-                    GRID_Y_SIZE, GRID_X_SIZE)
+from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask
+from config import FACTIONS, SPAWN_FREQUENCY, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS
 
 
 async def main(loop, grid: MapGrid):
@@ -58,25 +56,17 @@ async def main(loop, grid: MapGrid):
 
                     # These tasks are the same priority and can be randomly selected
                     # New task types can go here as well
-                    task = random.choice([IdleTask, MoveTask])
-                    if task is IdleTask:
-                        duration = random.randint(MIN_IDLE_DURATION, MAX_IDLE_DURATION)
-                        tasks.append(loop.create_task(IdleTask(grid, squad, duration).execute()))
-                    else:
-                        while (dest := (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))) in grid.get_obstacles(): pass
-                        tasks.append(loop.create_task(MoveTask(grid, squad, dest).execute()))
+                    new_task = random.choice([IdleTask, MoveTask, HuntArtifactsTask])
+                    if new_task is HuntArtifactsTask and not FACTIONS[squad.faction]["can_hunt_artifacts"]:
+                        continue
 
-        complete, running = await asyncio.wait(tasks, timeout=1)
+                    if new_task is HuntArtifactsTask:
+                        print(f"{squad} assigned Hunt")
+
+                    tasks.append(loop.create_task(new_task(grid, squad).execute()))
+
+        _, running = await asyncio.wait(tasks, timeout=1)
         tasks = list(running)
-
-        # Award task exp to eligible squads
-        for task in complete:
-            for item in task.result():
-                _, squad, exp_eligible = item
-                if FACTIONS[squad.faction]["can_gain_exp"] and exp_eligible:
-                    for actor in squad.actors:
-                        actor.gain_exp(random.randint(100, 300))
-                        actor.rank_up()
 
         grid.cleanup()
 

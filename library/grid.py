@@ -50,6 +50,14 @@ class MapGrid:
     def get_obstacles(self):
         return self._area_map["obstacles"]
 
+    def get_closest_artifact_field(self, point: Location):
+        """Return the closest artifact field relative to a given position"""
+        closest = sorted(self._area_map["fields"], key=lambda x: self.pathfinder.manhattan_distance(point, x))
+        if closest:
+            return closest[0]
+
+        return None
+
     def draw(self):
         """Draw current grid state in console"""
 
@@ -114,6 +122,8 @@ class MapGrid:
             parts.append(f"{Fore.YELLOW}[LOOT]{Style.RESET_ALL}")
         elif msg_type == "MOVE":
             parts.append(f"{Fore.GREEN}[MOVE]{Style.RESET_ALL}")
+        elif msg_type == "HUNT":
+            parts.append(f"{Fore.MAGENTA}[HUNT]{Style.RESET_ALL}")
         elif msg_type == "IDLE":
             parts.append(f"{Fore.CYAN}[IDLE]{Style.RESET_ALL}")
         else:

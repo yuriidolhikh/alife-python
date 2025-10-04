@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 import random
-from typing import Optional
+
+from dataclasses import dataclass
 
 from .types import Location
-
 from config import RANKS, EXP_PER_RANK, FACTIONS
 
 

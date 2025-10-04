@@ -1,6 +1,6 @@
 import pytest
 
-from library import CombatTask, IdleTask, MoveTask, LootTask, MapGrid, Actor, Squad
+from library import CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, MapGrid, Actor, Squad
 
 
 @pytest.mark.asyncio
@@ -62,6 +62,28 @@ async def test_idle_task():
     squad = Squad("test_faction", (0, 0))
 
     await IdleTask(grid, squad, 0).execute()
+    assert squad.has_task is False, "Squad should mark task as complete"
+
+
+@pytest.mark.asyncio
+async def test_hunt_artifacts_task(monkeypatch):
+    grid = MapGrid()
+    grid._area_map["fields"].extend([(1, 1), (4, 4)])
+
+    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('library.tasks.ARTIFACT_HUNT_DURATION', 0)
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
+
+    squad = Squad("stalker", (0, 0))
+    squad.add_actor(Actor("stalker", (0, 0)))
+
+    actor_exp_before = squad.actors[0].experience
+
+    await HuntArtifactsTask(grid, squad).execute()
+
+    assert squad.location == (1, 1), "Squad should move to the nearest artifact field"
+    assert squad.actors[0].location == (1, 1), "Squad actors should move to the nearest field"
+    assert squad.actors[0].experience > actor_exp_before, "Task should award experience"
     assert squad.has_task is False, "Squad should mark task as complete"
 
 

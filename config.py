@@ -9,6 +9,7 @@ MAX_IDLE_DURATION = 30  # max duration of wait at current location" task
 COMBAT_DURATION = 10  # duration of combat task
 TRAVEL_DURATION = 10  # duration of travel to the adjacent square
 LOOT_DURATION = 5  # duration of looting task
+ARTIFACT_HUNT_DURATION = 10
 
 """Pathfinding parameters"""
 PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
@@ -26,7 +27,7 @@ EXP_PER_RANK = 2000  # Amount of exp required to advance a rank
 
 FACTIONS = {
     "stalker": {
-        "spawn_bias": (0.5, 0.8),  # spawn bias on the grid, (0.5, 0.8) here being lower-center
+        "spawn_bias": None,  # spawn bias on the grid, for example (0.5, 0.8) being lower-center
         "relative_firepower": 1.0,  # relative firepower of the faction squad, 1.0 being the baseline
         "hostile": ("mercenary", "bandit", "military", "monolith", "mutant"),  # factions hostile to the current faction
         "can_loot": True,  # determines if this faction can loot bodies

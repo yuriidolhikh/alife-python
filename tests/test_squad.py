@@ -1,7 +1,10 @@
+import uuid
+
 from library import Squad, Actor
 
 
-def test_squad_init():
+def test_squad_init(monkeypatch):
+    monkeypatch.setattr('uuid.uuid4', lambda: uuid.UUID("6148b8ca-a130-11f0-b311-8c859097fb57"))
     squad = Squad(faction="test_faction", location=(0, 55))
 
     assert squad.faction == "test_faction", "Squad faction should be correct"
@@ -11,7 +14,7 @@ def test_squad_init():
     assert not squad.in_combat, "Squad should not be in combat"
     assert not squad.is_looting, "Squad should not be looting"
     assert not squad.is_busy(), "Squad should not be busy"
-    assert str(squad) == "Test_faction squad (0 actors) at location (0, 55)", "Squad string should be correct"
+    assert str(squad) == "Test_faction squad(SID=8c859097fb57) (0 actors) at location (0, 55)", "Squad string should be correct"
 
 
 def test_squad_update():
