@@ -50,9 +50,9 @@ class MapGrid:
     def get_obstacles(self):
         return self._area_map["obstacles"]
 
-    def get_closest_artifact_field(self, point: Location):
-        """Return the closest artifact field relative to a given position"""
-        closest = sorted(self._area_map["fields"], key=lambda x: self.pathfinder.manhattan_distance(point, x))
+    def get_closest_of_type(self, t: str, point: Location):
+        """Return the closest coordinate of a given entity(i.e.: trader, field, poi) relative to a given position"""
+        closest = sorted(self._area_map[t], key=lambda x: self.pathfinder.manhattan_distance(point, x))
         if closest:
             return closest[0]
 
@@ -121,9 +121,11 @@ class MapGrid:
         elif msg_type == "LOOT":
             parts.append(f"{Fore.YELLOW}[LOOT]{Style.RESET_ALL}")
         elif msg_type == "MOVE":
-            parts.append(f"{Fore.GREEN}[MOVE]{Style.RESET_ALL}")
+            parts.append(f"{Fore.BLUE}[MOVE]{Style.RESET_ALL}")
         elif msg_type == "HUNT":
             parts.append(f"{Fore.MAGENTA}[HUNT]{Style.RESET_ALL}")
+        elif msg_type == "TRADE":
+            parts.append(f"{Fore.GREEN}[TRADE]{Style.RESET_ALL}")
         elif msg_type == "IDLE":
             parts.append(f"{Fore.CYAN}[IDLE]{Style.RESET_ALL}")
         else:

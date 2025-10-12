@@ -2,8 +2,8 @@ import asyncio
 import os
 import random
 
-from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask
-from config import FACTIONS, SPAWN_FREQUENCY, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS
+from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, TradeTask
+from config import FACTIONS, SPAWN_FREQUENCY, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS, LOOT_SELLING_THRESHOLD
 
 
 async def main(loop, grid: MapGrid):
@@ -54,15 +54,16 @@ async def main(loop, grid: MapGrid):
                     if squad.is_busy():
                         continue
 
+                    potential_tasks = [IdleTask, MoveTask]
+                    if squad.loot_value >= LOOT_SELLING_THRESHOLD and FACTIONS[squad.faction]["can_trade"]:
+                        potential_tasks.append(TradeTask)
+
+                    if FACTIONS[squad.faction]["can_hunt_artifacts"]:
+                        potential_tasks.append(HuntArtifactsTask)
+
                     # These tasks are the same priority and can be randomly selected
                     # New task types can go here as well
-                    new_task = random.choice([IdleTask, MoveTask, HuntArtifactsTask])
-                    if new_task is HuntArtifactsTask and not FACTIONS[squad.faction]["can_hunt_artifacts"]:
-                        continue
-
-                    if new_task is HuntArtifactsTask:
-                        print(f"{squad} assigned Hunt")
-
+                    new_task = random.choice(potential_tasks)
                     tasks.append(loop.create_task(new_task(grid, squad).execute()))
 
         _, running = await asyncio.wait(tasks, timeout=1)

@@ -9,7 +9,7 @@ from .squad import Squad
 from .types import Location
 
 from config import GRID_X_SIZE, GRID_Y_SIZE
-from config import (COMBAT_DURATION, MIN_IDLE_DURATION, MAX_IDLE_DURATION,
+from config import (COMBAT_DURATION, MIN_IDLE_DURATION, MAX_IDLE_DURATION, TRADE_DURATION,
                     TRAVEL_DURATION, LOOT_DURATION, ARTIFACT_HUNT_DURATION, FACTIONS)
 
 
@@ -135,7 +135,7 @@ class HuntArtifactsTask(Task):
     """Handles artifact hunts"""
 
     def __init__(self, grid: MapGrid, squad: Squad):
-        closest_field = grid.get_closest_artifact_field(squad.location)
+        closest_field = grid.get_closest_of_type("fields", squad.location)
         if closest_field:
             steps = MoveTask(grid, squad, closest_field).get_steps()
             steps.append(self._run(grid, squad))
@@ -159,7 +159,34 @@ class HuntArtifactsTask(Task):
                 grid.place(actor, squad.location)
                 squad.remove_actor(actor)
 
+        squad.loot_value += random.randint(100, 500)
+
         self.award_exp(squad)
+        squad.has_task = False
+
+        return True
+
+
+class TradeTask(Task):
+    """Handles loot selling"""
+
+    def __init__(self, grid: MapGrid, squad: Squad):
+        closest_trader = grid.get_closest_of_type("traders", squad.location)
+        if closest_trader:
+            steps = MoveTask(grid, squad, closest_trader).get_steps()
+            steps.append(self._run(grid, squad))
+            self._steps = steps
+        else:
+            self._steps = []  # map does not support traders
+
+    async def _run(self, grid: MapGrid, squad: Squad):
+
+        squad.has_task = True
+        while squad.loot_value:
+            grid.add_log_msg("TRADE", f"{squad.faction} squad is selling habar", squad.location)
+            squad.loot_value -= min(500, squad.loot_value)
+            await asyncio.sleep(TRADE_DURATION)
+
         squad.has_task = False
 
         return True
@@ -190,6 +217,8 @@ class LootTask(Task):
         self._steps = [self._run(grid, squad, actor)]
 
     async def _run(self, grid: MapGrid, squad: Squad, actor: Actor):
+        # offset looted value by actor experience, so higher exp = more valuable loot
+
         msg = f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction}"
         if actor.faction != "mutant":
             msg += f" actor ({actor.rank})"
@@ -201,6 +230,8 @@ class LootTask(Task):
         actor.looted = True
         await asyncio.sleep(LOOT_DURATION)
         grid.remove(actor)
+
+        squad.loot_value += round(random.randint(10, 50) * (actor.experience / 1000))
         squad.is_looting = False
 
         return True

@@ -2,6 +2,7 @@
 SPAWN_FREQUENCY = 20  # frequency of new squad spawns (seconds)
 MIN_FACTION_SQUADS = 15  # min number of faction squads to spawn on startup
 MAX_FACTION_SQUADS = 17  # max number of faction squads to spawn on startup
+LOOT_SELLING_THRESHOLD = 2000  # amount of "looted" value for squad to have to trigger selling
 
 """Task parameters"""
 MIN_IDLE_DURATION = 10  # min duration of "wait at current location" task
@@ -10,6 +11,7 @@ COMBAT_DURATION = 10  # duration of combat task
 TRAVEL_DURATION = 10  # duration of travel to the adjacent square
 LOOT_DURATION = 5  # duration of looting task
 ARTIFACT_HUNT_DURATION = 10
+TRADE_DURATION = 1
 
 """Pathfinding parameters"""
 PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
