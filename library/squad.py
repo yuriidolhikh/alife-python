@@ -15,8 +15,6 @@ class Squad:
     sid: uuid.UUID = None
     actors: list = field(default_factory=list)  # list of actors in the squad
 
-    loot_value = 0
-
     has_task: bool = False
     in_combat: bool = False
     is_looting: bool = False

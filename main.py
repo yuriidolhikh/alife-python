@@ -47,7 +47,7 @@ async def main(loop, grid: MapGrid):
                 # Loot if there are bodies in the same square. Prevents movement
                 if actorlist and FACTIONS[squad.faction]["can_loot"]:
                     max_lootable_corpses = min(len(actorlist), len(squad.actors))  # 1 guy loots 1 corpse at a time
-                    for actor in filter(lambda x: not x.looted, actorlist[:max_lootable_corpses]):
+                    for actor in filter(lambda x: x.loot_value is not None, actorlist[:max_lootable_corpses]):
                         tasks.append(loop.create_task(LootTask(grid, squad, actor).execute()))
                 else:
                     # Can't task a squad already doing something else
@@ -55,7 +55,7 @@ async def main(loop, grid: MapGrid):
                         continue
 
                     potential_tasks = [IdleTask, MoveTask]
-                    if squad.loot_value >= LOOT_SELLING_THRESHOLD and FACTIONS[squad.faction]["can_trade"]:
+                    if sum(actor.loot_value for actor in squad.actors) >= LOOT_SELLING_THRESHOLD and FACTIONS[squad.faction]["can_trade"]:
                         potential_tasks.append(TradeTask)
 
                     if FACTIONS[squad.faction]["can_hunt_artifacts"]:

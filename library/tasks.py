@@ -159,7 +159,7 @@ class HuntArtifactsTask(Task):
                 grid.place(actor, squad.location)
                 squad.remove_actor(actor)
 
-        squad.loot_value += random.randint(100, 500)
+        random.choice(squad.actors).loot_value += random.randint(100, 500)
 
         self.award_exp(squad)
         squad.has_task = False
@@ -182,11 +182,12 @@ class TradeTask(Task):
     async def _run(self, grid: MapGrid, squad: Squad):
 
         squad.has_task = True
-        while squad.loot_value:
-            grid.add_log_msg("TRADE", f"{squad.faction} squad is selling habar", squad.location)
-            squad.loot_value -= min(500, squad.loot_value)
-            await asyncio.sleep(TRADE_DURATION)
+        grid.add_log_msg("TRADE", f"{squad.faction} squad is selling habar", squad.location)
 
+        for actor in squad.actors:
+            actor.loot_value //= 2  # "sell" half of loot
+
+        await asyncio.sleep(TRADE_DURATION)
         squad.has_task = False
 
         return True
@@ -217,21 +218,26 @@ class LootTask(Task):
         self._steps = [self._run(grid, squad, actor)]
 
     async def _run(self, grid: MapGrid, squad: Squad, actor: Actor):
-        # offset looted value by actor experience, so higher exp = more valuable loot
+        if actor.loot_value is None:
+            return False  # already looted
 
         msg = f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction}"
         if actor.faction != "mutant":
-            msg += f" actor ({actor.rank})"
+            msg += f" actor ({actor.rank}; loot value: {actor.loot_value})"
         msg += " body..."
 
         grid.add_log_msg("LOOT", msg, actor.location)
 
         squad.is_looting = True
-        actor.looted = True
+
+        actor_loot_value = actor.loot_value
+        actor.loot_value = None
+
         await asyncio.sleep(LOOT_DURATION)
         grid.remove(actor)
 
-        squad.loot_value += round(random.randint(10, 50) * (actor.experience / 1000))
+        random.choice(squad.actors).loot_value += actor_loot_value  # award loot to a random actor in a squad
+
         squad.is_looting = False
 
         return True

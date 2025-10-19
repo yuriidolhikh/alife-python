@@ -5,17 +5,17 @@ def test_actor_init():
     actor = Actor(faction="stalker", location=(0, 99), experience=100)
     assert actor.faction == "stalker", "Actor faction should be set correctly"
     assert actor.location == (0, 99), "Actor location should be set correctly"
-    assert not actor.looted, "Actor should not be marked as looted"
+    assert actor.loot_value is not None, "Actor should not be marked as looted"
     assert str(actor) == "Stalker actor (Rookie) at location (0, 99)", "Actor string should be correct"
 
 
 def test_actor_update():
     actor = Actor(faction="stalker", location=(0, 99), experience=100)
-    actor.looted = True
+    actor.loot_value = None
     actor.location = (55, 14)
     assert actor.faction == "stalker", "Actor faction should be set correctly"
     assert actor.location == (55, 14), "Actor location should be updated correctly"
-    assert actor.looted, "Actor should be marked as looted"
+    assert actor.loot_value is None, "Actor should be marked as looted"
     assert str(actor) == "Stalker actor (Rookie) at location (55, 14)", "Actor string should be correct"
 
 

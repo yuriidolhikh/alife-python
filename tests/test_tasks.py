@@ -34,7 +34,7 @@ async def test_combat_task(monkeypatch):
     assert len(actors) == 2, "CombatTask should produce exactly 2 lootable bodies"
 
     for actor in actors:
-        assert not actor.looted, "Actor should not be looted"
+        assert actor.loot_value is not None, "Actor should not be looted"
 
 
 @pytest.mark.asyncio
@@ -98,13 +98,14 @@ async def test_trade_task(monkeypatch):
 
     squad = Squad("stalker", (0, 0))
     squad.add_actor(Actor("stalker", (0, 0)))
-    squad.loot_value = 500
+
+    prev_total = sum(a.loot_value for a in squad.actors)
 
     await TradeTask(grid, squad).execute()
 
     assert squad.location == (1, 1), "Squad should move to the nearest trader"
     assert squad.actors[0].location == (1, 1), "Squad actors should move to the trader"
-    assert squad.loot_value == 0, "Loot should be sold"
+    assert sum(a.loot_value for a in squad.actors) < prev_total, "Loot should be sold"
     assert squad.has_task is False, "Squad should mark task as complete"
 
 
@@ -116,12 +117,16 @@ async def test_loot_task(monkeypatch):
     squad.add_actor(Actor("stalker", (1, 1)))
 
     lootable = Actor("ward", (1, 1))
+    lootable_value = lootable.loot_value
+    prev_actor_value = squad.actors[0].loot_value
+
     grid.place(lootable, (1, 1))
 
     monkeypatch.setattr('library.tasks.LOOT_DURATION', 0)
     await LootTask(grid, squad, lootable).execute()
 
     assert squad.is_looting is False, "Squad should not be marked as looting"
-    assert lootable.looted, "Actor should be marked as looted"
+    assert lootable.loot_value is None, "Actor should be marked as looted"
+    assert squad.actors[0].loot_value == (prev_actor_value + lootable_value), "Actor's loot value should increase"
 
     assert len(grid.get_grid()[(1, 1)][1]) == 0, "Looted actor should be removed from the grid"

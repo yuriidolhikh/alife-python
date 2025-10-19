@@ -13,7 +13,7 @@ class Actor:
     location: Location  # TODO: consider removing and using squad location instead
     rank: str = RANKS[0]
     experience: int = 0
-    looted: bool = False
+    loot_value: int = 0
 
     def __post_init__(self):
         """Set-up actor after creation"""
@@ -24,6 +24,8 @@ class Actor:
             self.gain_exp(((len(RANKS) - 1) * EXP_PER_RANK) // 2)
 
         self.rank_up()
+
+        self.loot_value = self.experience // random.randint(10, 30)  # assume actor's loot value is proportional to his experience
 
     def __str__(self):
         return f"{self.faction.capitalize()} actor ({self.rank}) at location {self.location}"
