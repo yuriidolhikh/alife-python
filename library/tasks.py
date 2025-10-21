@@ -13,12 +13,35 @@ from config import (COMBAT_DURATION, MIN_IDLE_DURATION, MAX_IDLE_DURATION, TRADE
                     TRAVEL_DURATION, LOOT_DURATION, ARTIFACT_HUNT_DURATION, FACTIONS)
 
 
+async def move_to(grid: MapGrid, squad: Squad, dest: Location):
+    """Helper method to handle square-by-square movement"""
+
+    if not squad.actors:
+        grid.remove(squad)
+        return False
+
+    await asyncio.sleep(TRAVEL_DURATION)
+    # interrupt movement for more important tasks
+    if squad.in_combat or squad.is_looting:
+        return False
+
+    grid.remove(squad)
+    squad.location = dest
+    grid.place(squad, dest)
+
+    for actor in squad.actors:
+        actor.location = dest
+
+    return True
+
+
 class Task:
     """Base class for all tasks"""
 
     _steps: list[Awaitable]  # can chain multiple steps to create more complex tasks
 
     async def execute(self):
+        """Execute steps in order and aggregate results"""
         res = []
         while self._steps:
             res.append(await self._steps.pop(0))
@@ -63,11 +86,11 @@ class CombatTask(Task):
         for squad in (left, right):
             losses = biased_outcome(0, len(squad.actors), squad is not winner)
 
-            msg = f"{squad.faction} squad({len(squad.actors)}) {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
+            msg = f"{squad} {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
             if losses == len(squad.actors):
                 msg += " and was wiped out"
 
-            grid.add_log_msg("COMBAT", msg, squad.location)
+            grid.add_log_msg("CMBT", msg, squad.location)
 
             for actor in squad.actors[:losses]:
                 grid.place(actor, squad.location)  # place actor "corpse" for future looting
@@ -103,27 +126,15 @@ class MoveTask(Task):
         if path is None:
             return False
 
-        grid.add_log_msg("MOVE", f"{squad.faction} squad({len(squad.actors)}) is moving to {dest}", squad.location)
+        grid.add_log_msg("MOVE", f"{squad} is moving to {dest}", squad.location)
         squad.has_task = True
 
         while path:
             next_square = path.pop(0)
+            res = await move_to(grid, squad, next_square)
 
-            if not squad.actors:
-                grid.remove(squad)
+            if not res:
                 break
-
-            await asyncio.sleep(TRAVEL_DURATION)
-            # interrupt movement for more important tasks
-            if squad.in_combat or squad.is_looting:
-                break
-
-            grid.remove(squad)
-            squad.location = next_square
-            grid.place(squad, next_square)
-
-            for actor in squad.actors:
-                actor.location = next_square
 
         squad.has_task = False
         self.award_exp(squad)
@@ -144,15 +155,18 @@ class HuntArtifactsTask(Task):
             self._steps = []  # map does not support artifact fields
 
     async def _run(self, grid: MapGrid, squad: Squad):
-        grid.add_log_msg("HUNT", f"{squad.faction} squad is hunting for artifacts", squad.location)
+        grid.add_log_msg("ARTI", f"{squad} is hunting for artifacts", squad.location)
 
         squad.has_task = True
         await asyncio.sleep(ARTIFACT_HUNT_DURATION)
 
+        if squad.in_combat:
+            return False
+
         losses = random.randint(0, len(squad.actors) // 2)
         if losses:
-            grid.add_log_msg("HUNT",
-             f"{squad.faction} squad({len(squad.actors)}) has lost {losses} {losses > 1 and "men" or "man"} while hunting for artifacts",
+            grid.add_log_msg("ARTI",
+             f"{squad} has lost {losses} {losses > 1 and "men" or "man"} while hunting for artifacts",
              squad.location)
 
             for actor in squad.actors[:losses]:
@@ -182,7 +196,7 @@ class TradeTask(Task):
     async def _run(self, grid: MapGrid, squad: Squad):
 
         squad.has_task = True
-        grid.add_log_msg("TRADE", f"{squad.faction} squad is selling habar", squad.location)
+        grid.add_log_msg("TRADE", f"{squad} is selling habar", squad.location)
 
         for actor in squad.actors:
             actor.loot_value //= 2  # "sell" half of loot
@@ -203,7 +217,7 @@ class IdleTask(Task):
         self._steps = [self._run(grid, squad, duration)]
 
     async def _run(self, grid: MapGrid, squad: Squad, duration: int):
-        grid.add_log_msg("IDLE", f"{squad.faction} squad({len(squad.actors)}) is waiting for {duration} seconds", squad.location)
+        grid.add_log_msg("IDLE", f"{squad} is waiting for {duration} seconds", squad.location)
         squad.has_task = True
         await asyncio.sleep(duration)
         squad.has_task = False
@@ -221,7 +235,7 @@ class LootTask(Task):
         if actor.loot_value is None:
             return False  # already looted
 
-        msg = f"{squad.faction.upper()} squad({len(squad.actors)}) is looting a {actor.faction}"
+        msg = f"{squad} is looting a {actor.faction}"
         if actor.faction != "mutant":
             msg += f" actor ({actor.rank}; loot value: {actor.loot_value})"
         msg += " body..."
@@ -241,3 +255,39 @@ class LootTask(Task):
         squad.is_looting = False
 
         return True
+
+
+class HuntSquadTask(Task):
+    """Hunt another squad for bounty"""
+
+    def __init__(self, grid: MapGrid, squad: Squad):
+        target = grid.get_squad_in_vicinity(squad.location, FACTIONS[squad.faction]["hostile"])
+
+        if target:
+            grid.add_log_msg("HUNT", f"Assigned {squad} to hunt {target.faction} squad at {target.location}", squad.location)
+            self._steps = [self._run(grid, squad, target)]
+        else:
+            self._steps = []
+
+    async def _run(self, grid: MapGrid, squad: Squad, target: Squad):
+        path = grid.pathfinder.create_path(squad.location, target.location)
+
+        squad.has_task = True
+        old_location = target.location
+
+        while squad.location != target.location and path:
+            next_square = path.pop(0)
+            await move_to(grid, squad, next_square)
+
+            # target has moved
+            if target.location != old_location:
+                old_location = target.location
+                path = grid.pathfinder.create_path(squad.location, target.location)
+
+        grid.add_log_msg("HUNT", f"{squad} has found it's target", squad.location)
+
+        self.award_exp(squad)
+        squad.has_task = False
+
+        return True
+

@@ -58,6 +58,23 @@ class MapGrid:
 
         return None
 
+    def get_squad_in_vicinity(self, point: Location, factions: list[str], distance_factor=20):
+        """Find closes squad of specified faction within a given range"""
+        low_x, high_x = max(point[0] - GRID_X_SIZE // distance_factor, 0), min(point[0] + GRID_X_SIZE // distance_factor, GRID_X_SIZE)
+        low_y, high_y = max(point[1] - GRID_Y_SIZE // distance_factor, 0), min(point[1] + GRID_Y_SIZE // distance_factor, GRID_Y_SIZE)
+
+        candidates = []
+        for x in range(low_x, high_x):
+            for y in range(low_y, high_y):
+                if self._grid.get((x, y)):
+                    squadlist = self._grid[(x, y)][0]
+                    candidates.extend([squad for squad in squadlist if squad.faction in factions])
+
+        if not candidates:
+            return False
+
+        return sorted(candidates, key=lambda x: self.pathfinder.manhattan_distance(point, x.location))[0]
+
     def draw(self):
         """Draw current grid state in console"""
 
@@ -116,18 +133,18 @@ class MapGrid:
         """Logging helper"""
 
         parts = []
-        if msg_type == "COMBAT":
-            parts.append(f"{Fore.RED}[COMBAT]{Style.RESET_ALL}")
-        elif msg_type == "LOOT":
-            parts.append(f"{Fore.YELLOW}[LOOT]{Style.RESET_ALL}")
-        elif msg_type == "MOVE":
-            parts.append(f"{Fore.BLUE}[MOVE]{Style.RESET_ALL}")
-        elif msg_type == "HUNT":
-            parts.append(f"{Fore.MAGENTA}[HUNT]{Style.RESET_ALL}")
-        elif msg_type == "TRADE":
-            parts.append(f"{Fore.GREEN}[TRADE]{Style.RESET_ALL}")
-        elif msg_type == "IDLE":
-            parts.append(f"{Fore.CYAN}[IDLE]{Style.RESET_ALL}")
+        color_map = {
+            "CMBT": Fore.RED,
+            "LOOT": Fore.YELLOW,
+            "MOVE": Fore.LIGHTBLUE_EX,
+            "ARTI": Fore.LIGHTMAGENTA_EX,
+            "TRADE": Fore.GREEN,
+            "HUNT": Fore.LIGHTYELLOW_EX,
+            "IDLE": Fore.CYAN
+        }
+
+        if color := color_map.get(msg_type):
+            parts.append(f"{color}[{msg_type}]{Style.RESET_ALL}")
         else:
             parts.append("[INFO]")
 

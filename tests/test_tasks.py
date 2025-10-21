@@ -1,6 +1,6 @@
 import pytest
 
-from library import CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, TradeTask, MapGrid, Actor, Squad
+from library import CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, TradeTask, HuntSquadTask, MapGrid, Actor, Squad
 
 
 @pytest.mark.asyncio
@@ -130,3 +130,28 @@ async def test_loot_task(monkeypatch):
     assert squad.actors[0].loot_value == (prev_actor_value + lootable_value), "Actor's loot value should increase"
 
     assert len(grid.get_grid()[(1, 1)][1]) == 0, "Looted actor should be removed from the grid"
+
+
+@pytest.mark.asyncio
+async def test_hunt_squad_task(monkeypatch):
+    grid = MapGrid()
+
+    squad1 = Squad("stalker", (0, 0))
+    squad1.add_actor(Actor("stalker", (0, 0)))
+    grid.place(squad1, (0, 0))
+
+    squad2 = Squad("monolith", (2, 2))
+    squad2.add_actor(Actor("monolith", (2, 2)))
+    grid.place(squad2, (2, 2))
+
+    squad3 = Squad("monolith", (5, 8))
+    squad3.add_actor(Actor("monolith", (5, 8)))
+    grid.place(squad3, (5, 8))
+
+    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
+
+    await HuntSquadTask(grid, squad1).execute()
+
+    assert squad1.location == (2, 2), "Squad should move to correct target position"
+    assert squad1.is_busy() is False, "Squad should unset 'busy' flag after finding the target"

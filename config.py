@@ -11,7 +11,7 @@ COMBAT_DURATION = 10  # duration of combat task
 TRAVEL_DURATION = 10  # duration of travel to the adjacent square
 LOOT_DURATION = 5  # duration of looting task
 ARTIFACT_HUNT_DURATION = 10
-TRADE_DURATION = 1
+TRADE_DURATION = 3
 
 """Pathfinding parameters"""
 PATHFINDING_MODE = "hpa"  # simple, astar, diagonal-astar or hpa
@@ -35,7 +35,8 @@ FACTIONS = {
         "can_loot": True,  # determines if this faction can loot bodies
         "can_gain_exp": True,  # determines if actors of this faction can gain exp
         "can_trade": True,  # determines if actors of this faction will visit traders
-        "can_hunt_artifacts": True  # determines if actors of this faction will hunt for artifacts
+        "can_hunt_artifacts": True,  # determines if actors of this faction will hunt for artifacts
+        "can_hunt_squads": True,  # determines if actors of this faction will take bounties on other squads
         },
     "bandit": {
         "spawn_bias": (0.5, 0.5),
@@ -44,7 +45,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": True,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": False
         },
     "ward": {
         "spawn_bias": (0.3, 0.6),
@@ -53,7 +55,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": True,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": False
     },
     "spark": {
         "spawn_bias": (0.1, 0.5),
@@ -62,7 +65,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": True,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": False
     },
     "mercenary": {
         "spawn_bias": (0.1, 0.8),
@@ -71,7 +75,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": False,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": True
     },
     "military": {
         "spawn_bias": (0.5, 0.3),
@@ -80,7 +85,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": False,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": True
     },
     "monolith": {
         "spawn_bias": (0.2, 0.0),
@@ -89,7 +95,8 @@ FACTIONS = {
         "can_loot": True,
         "can_gain_exp": True,
         "can_trade": False,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": False
     },
     "mutant": {
         "spawn_bias": None,  # can spawn anywhere
@@ -98,6 +105,7 @@ FACTIONS = {
         "can_loot": False,
         "can_gain_exp": False,
         "can_trade": False,
-        "can_hunt_artifacts": False
+        "can_hunt_artifacts": False,
+        "can_hunt_squads": False
     }
 }

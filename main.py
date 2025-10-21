@@ -2,7 +2,7 @@ import asyncio
 import os
 import random
 
-from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, TradeTask
+from library import MapGrid, CombatTask, IdleTask, MoveTask, LootTask, HuntArtifactsTask, TradeTask, HuntSquadTask
 from config import FACTIONS, SPAWN_FREQUENCY, MIN_FACTION_SQUADS, MAX_FACTION_SQUADS, LOOT_SELLING_THRESHOLD
 
 
@@ -60,6 +60,9 @@ async def main(loop, grid: MapGrid):
 
                     if FACTIONS[squad.faction]["can_hunt_artifacts"]:
                         potential_tasks.append(HuntArtifactsTask)
+
+                    if FACTIONS[squad.faction]["can_hunt_squads"]:
+                        potential_tasks.append(HuntSquadTask)
 
                     # These tasks are the same priority and can be randomly selected
                     # New task types can go here as well

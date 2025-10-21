@@ -14,7 +14,7 @@ def test_squad_init(monkeypatch):
     assert not squad.in_combat, "Squad should not be in combat"
     assert not squad.is_looting, "Squad should not be looting"
     assert not squad.is_busy(), "Squad should not be busy"
-    assert str(squad) == "Test_faction squad(SID=8c859097fb57) (0 actors) at location (0, 55)", "Squad string should be correct"
+    assert str(squad) == "Test_faction squad(SID=8c859097fb57) (0 actors)", "Squad string should be correct"
 
 
 def test_squad_update():

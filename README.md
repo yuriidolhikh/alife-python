@@ -23,5 +23,5 @@ Squads on the grid can
 # TODO
 - ~~Support for obstacles and faction no-go zones on the map~~
 - ~~Update of pathing algorithm for optimal pathfinding with obstacles~~
-- Trade and HuntSquad tasks
+- ~~Trade and HuntSquad tasks~~
 - ~~Firepower-based combat resolution~~
