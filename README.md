@@ -4,8 +4,10 @@ This is a hypothetical implementation of STALKER 2 offline A-Life in Python 3.
 
 Squads on the grid can
 - be tasked to wait at current location or move to a new one
-- navigate a map with obstacles with optimal (not 100% perfect though) pathfinding
+- navigate a map with obstacles with optimal pathfinding
 - fight other squads and loot bodies
+- hunt for artifacts and trade
+- collect bounties on other squads
 - gain experience and ranks when they complete certain tasks (i.e.: idling on location does not award exp, but traveling across the area does)
 - have higher chances of surviving combat as they gain more experience
 
