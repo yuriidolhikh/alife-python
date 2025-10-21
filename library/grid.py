@@ -58,7 +58,7 @@ class MapGrid:
 
         return None
 
-    def get_squad_in_vicinity(self, point: Location, factions: list[str], distance_factor=20):
+    def get_squad_in_vicinity(self, point: Location, factions: list[str], distance_factor=20, max_actors=5):
         """Find closes squad of specified faction within a given range"""
         low_x, high_x = max(point[0] - GRID_X_SIZE // distance_factor, 0), min(point[0] + GRID_X_SIZE // distance_factor, GRID_X_SIZE)
         low_y, high_y = max(point[1] - GRID_Y_SIZE // distance_factor, 0), min(point[1] + GRID_Y_SIZE // distance_factor, GRID_Y_SIZE)
@@ -68,7 +68,7 @@ class MapGrid:
             for y in range(low_y, high_y):
                 if self._grid.get((x, y)):
                     squadlist = self._grid[(x, y)][0]
-                    candidates.extend([squad for squad in squadlist if squad.faction in factions])
+                    candidates.extend([squad for squad in squadlist if squad.faction in factions and squad.num_actors() <= max_actors])
 
         if not candidates:
             return False
@@ -138,7 +138,7 @@ class MapGrid:
             "LOOT": Fore.YELLOW,
             "MOVE": Fore.LIGHTBLUE_EX,
             "ARTI": Fore.LIGHTMAGENTA_EX,
-            "TRADE": Fore.GREEN,
+            "TRDE": Fore.GREEN,
             "HUNT": Fore.LIGHTYELLOW_EX,
             "IDLE": Fore.CYAN
         }

@@ -84,10 +84,10 @@ class CombatTask(Task):
         await asyncio.sleep(COMBAT_DURATION)
 
         for squad in (left, right):
-            losses = biased_outcome(0, len(squad.actors), squad is not winner)
+            losses = biased_outcome(0, squad.num_actors(), squad is not winner)
 
             msg = f"{squad} {losses and f"lost {losses} {losses > 1 and "men" or "man"}" or "took no casualties"} in combat"
-            if losses == len(squad.actors):
+            if losses == squad.num_actors():
                 msg += " and was wiped out"
 
             grid.add_log_msg("CMBT", msg, squad.location)
@@ -148,6 +148,7 @@ class HuntArtifactsTask(Task):
     def __init__(self, grid: MapGrid, squad: Squad):
         closest_field = grid.get_closest_of_type("fields", squad.location)
         if closest_field:
+            grid.add_log_msg("ARTI", f"{squad} is moving to artifact field at {closest_field}", squad.location)
             steps = MoveTask(grid, squad, closest_field).get_steps()
             steps.append(self._run(grid, squad))
             self._steps = steps
@@ -163,7 +164,7 @@ class HuntArtifactsTask(Task):
         if squad.in_combat:
             return False
 
-        losses = random.randint(0, len(squad.actors) // 2)
+        losses = random.randint(0, squad.num_actors() // 2)
         if losses:
             grid.add_log_msg("ARTI",
              f"{squad} has lost {losses} {losses > 1 and "men" or "man"} while hunting for artifacts",
@@ -261,7 +262,7 @@ class HuntSquadTask(Task):
     """Hunt another squad for bounty"""
 
     def __init__(self, grid: MapGrid, squad: Squad):
-        target = grid.get_squad_in_vicinity(squad.location, FACTIONS[squad.faction]["hostile"])
+        target = grid.get_squad_in_vicinity(squad.location, FACTIONS[squad.faction]["hostile"], max_actors=squad.num_actors())
 
         if target:
             grid.add_log_msg("HUNT", f"{squad} is hunting {target} at {target.location}", squad.location)
