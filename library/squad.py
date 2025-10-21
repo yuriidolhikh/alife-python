@@ -23,7 +23,7 @@ class Squad:
         self.sid = uuid.uuid4().hex[-12:]
 
     def __str__(self):
-        return f"{self.faction.capitalize()} squad(SID={self.sid}) ({len(self.actors)} actors)"
+        return f"{self.faction.capitalize()} squad (SID={self.sid}) ({len(self.actors)} {len(self.actors) > 1 and "actors" or "actor"})"
 
     def is_busy(self):
         return self.in_combat or self.is_looting or self.has_task

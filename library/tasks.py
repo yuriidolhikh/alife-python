@@ -196,7 +196,7 @@ class TradeTask(Task):
     async def _run(self, grid: MapGrid, squad: Squad):
 
         squad.has_task = True
-        grid.add_log_msg("TRADE", f"{squad} is selling habar", squad.location)
+        grid.add_log_msg("TRDE", f"{squad} is selling habar", squad.location)
 
         for actor in squad.actors:
             actor.loot_value //= 2  # "sell" half of loot
@@ -237,7 +237,7 @@ class LootTask(Task):
 
         msg = f"{squad} is looting a {actor.faction}"
         if actor.faction != "mutant":
-            msg += f" actor ({actor.rank}; loot value: {actor.loot_value})"
+            msg += f" actor (rank={actor.rank}; loot_value={actor.loot_value})"
         msg += " body..."
 
         grid.add_log_msg("LOOT", msg, actor.location)
@@ -264,7 +264,7 @@ class HuntSquadTask(Task):
         target = grid.get_squad_in_vicinity(squad.location, FACTIONS[squad.faction]["hostile"])
 
         if target:
-            grid.add_log_msg("HUNT", f"Assigned {squad} to hunt {target.faction} squad at {target.location}", squad.location)
+            grid.add_log_msg("HUNT", f"{squad} is hunting {target} at {target.location}", squad.location)
             self._steps = [self._run(grid, squad, target)]
         else:
             self._steps = []

@@ -6,15 +6,17 @@ from library import Squad, Actor
 def test_squad_init(monkeypatch):
     monkeypatch.setattr('uuid.uuid4', lambda: uuid.UUID("6148b8ca-a130-11f0-b311-8c859097fb57"))
     squad = Squad(faction="test_faction", location=(0, 55))
+    actor = Actor("stalker", (0, 25))
+    squad.add_actor(actor)
 
     assert squad.faction == "test_faction", "Squad faction should be correct"
     assert squad.location == (0, 55), "Squad location should be correct"
-    assert not squad.actors, "Squad should not have actors"
+    assert len(squad.actors) == 1, "Squad should have exactly 1 actors"
     assert not squad.has_task, "Squad should not have tasks"
     assert not squad.in_combat, "Squad should not be in combat"
     assert not squad.is_looting, "Squad should not be looting"
     assert not squad.is_busy(), "Squad should not be busy"
-    assert str(squad) == "Test_faction squad(SID=8c859097fb57) (0 actors)", "Squad string should be correct"
+    assert str(squad) == "Test_faction squad (SID=8c859097fb57) (1 actor)", "Squad string should be correct"
 
 
 def test_squad_update():
