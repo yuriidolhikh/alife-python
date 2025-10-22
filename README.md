@@ -27,3 +27,6 @@ Squads on the grid can
 - ~~Update of pathing algorithm for optimal pathfinding with obstacles~~
 - ~~Trade and HuntSquad tasks~~
 - ~~Firepower-based combat resolution~~
+
+# Known Issues
+- Some maps have disconnected passable squares where squads can spawn and get stuck

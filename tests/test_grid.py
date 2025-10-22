@@ -8,7 +8,11 @@ def test_grid_logger(monkeypatch):
     grid.add_log_msg("INFO", "test")
 
     assert len(grid._msg_log) == 1, "Message should be added to the message log"
-    assert grid._msg_log.pop() == "[INFO] TEST", "Message in the log should be correctly formatted"
+    assert grid._msg_log.pop() == "\x1b[37m[INFO]\x1b[39m TEST", "Message in the log should be correctly formatted"
+
+    grid.add_log_msg("CMBT", "test combat", (1, 3))
+    assert len(grid._msg_log) == 1, "Message should be added to the message log"
+    assert grid._msg_log.pop() == "\x1b[31m[CMBT]\x1b[39m [SQUARE=(1, 3)] TEST COMBAT", "Message should be correctly formatted"
 
 
 def test_grid_spawner():

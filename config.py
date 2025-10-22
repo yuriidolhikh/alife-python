@@ -1,7 +1,7 @@
 """Spawn parameters"""
 SPAWN_FREQUENCY = 20  # frequency of new squad spawns (seconds)
-MIN_FACTION_SQUADS = 15  # min number of faction squads to spawn on startup
-MAX_FACTION_SQUADS = 17  # max number of faction squads to spawn on startup
+MIN_FACTION_SQUADS = 10  # min number of faction squads to spawn on startup
+MAX_FACTION_SQUADS = 12  # max number of faction squads to spawn on startup
 LOOT_SELLING_THRESHOLD = 2000  # amount of "looted" value for squad to have to trigger selling
 
 """Task parameters"""
@@ -54,7 +54,7 @@ FACTIONS = {
         "hostile": ("spark", "bandit", "mercenary", "monolith", "mutant"),
         "can_loot": True,
         "can_gain_exp": True,
-        "can_trade": True,
+        "can_trade": False,
         "can_hunt_artifacts": False,
         "can_hunt_squads": False
     },
@@ -64,7 +64,7 @@ FACTIONS = {
         "hostile": ("ward", "monolith", "mutant"),
         "can_loot": True,
         "can_gain_exp": True,
-        "can_trade": True,
+        "can_trade": False,
         "can_hunt_artifacts": False,
         "can_hunt_squads": False
     },

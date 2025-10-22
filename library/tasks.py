@@ -148,7 +148,7 @@ class HuntArtifactsTask(Task):
     def __init__(self, grid: MapGrid, squad: Squad):
         closest_field = grid.get_closest_of_type("fields", squad.location)
         if closest_field:
-            grid.add_log_msg("ARTI", f"{squad} is moving to artifact field at {closest_field}", squad.location)
+            grid.add_log_msg("ARTI", f"{squad} is going on an artifact hunt at the nearest field {closest_field}", squad.location)
             steps = MoveTask(grid, squad, closest_field).get_steps()
             steps.append(self._run(grid, squad))
             self._steps = steps

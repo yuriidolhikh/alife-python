@@ -3,7 +3,7 @@ import pickle
 import random
 
 from collections import deque, defaultdict
-from colorama import Fore, Style, just_fix_windows_console
+from colorama import Fore, just_fix_windows_console
 from typing import Optional
 
 from .actor import Actor
@@ -140,13 +140,12 @@ class MapGrid:
             "ARTI": Fore.LIGHTMAGENTA_EX,
             "TRDE": Fore.GREEN,
             "HUNT": Fore.LIGHTYELLOW_EX,
-            "IDLE": Fore.CYAN
+            "IDLE": Fore.CYAN,
+            "INFO": Fore.WHITE
         }
 
         if color := color_map.get(msg_type):
-            parts.append(f"{color}[{msg_type}]{Style.RESET_ALL}")
-        else:
-            parts.append("[INFO]")
+            parts.append(f"{color}[{msg_type}]{Fore.RESET}")
 
         if square:
             parts.append(f"[SQUARE={square}]")
