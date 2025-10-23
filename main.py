@@ -97,6 +97,13 @@ if __name__ == "__main__":
         import uvloop
         main_loop = uvloop.new_event_loop()
 
-    main_loop.create_task(main(main_loop, map_grid))
+    main_task = main_loop.create_task(main(main_loop, map_grid))
     main_loop.create_task(scheduled_spawner(map_grid))
-    main_loop.run_forever()
+
+    try:
+        main_loop.run_forever()
+    except KeyboardInterrupt:
+        print("[INFO] Shutting down, please wait...")
+    finally:
+        main_task.cancel()
+        main_loop.stop()

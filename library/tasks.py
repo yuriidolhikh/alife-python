@@ -131,10 +131,8 @@ class MoveTask(Task):
 
         while path:
             next_square = path.pop(0)
-            res = await move_to(grid, squad, next_square)
-
-            if not res:
-                break
+            # interrupt task if movement has failed
+            if not await move_to(grid, squad, next_square): break
 
         squad.has_task = False
         self.award_exp(squad)
@@ -167,14 +165,16 @@ class HuntArtifactsTask(Task):
         losses = random.randint(0, squad.num_actors() // 2)
         if losses:
             grid.add_log_msg("ARTI",
-             f"{squad} has lost {losses} {losses > 1 and "men" or "man"} while hunting for artifacts",
-             squad.location)
+                f"{squad} has lost {losses} {losses > 1 and "men" or "man"} while hunting for artifacts",
+                squad.location
+            )
 
             for actor in squad.actors[:losses]:
                 grid.place(actor, squad.location)
                 squad.remove_actor(actor)
 
-        random.choice(squad.actors).loot_value += random.randint(100, 500)
+        if squad.actors:
+            random.choice(squad.actors).loot_value += random.randint(100, 500)
 
         self.award_exp(squad)
         squad.has_task = False
@@ -285,7 +285,7 @@ class HuntSquadTask(Task):
                 old_location = target.location
                 path = grid.pathfinder.create_path(squad.location, target.location)
 
-        grid.add_log_msg("HUNT", f"{squad} has found it's target", squad.location)
+        grid.add_log_msg("HUNT", f"{squad} has found it's target", target.location)
 
         self.award_exp(squad)
         squad.has_task = False
