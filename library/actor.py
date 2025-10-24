@@ -2,7 +2,7 @@ import random
 
 from dataclasses import dataclass
 
-from .types import Location
+from library.types import Location
 from config import RANKS, EXP_PER_RANK, FACTIONS
 
 

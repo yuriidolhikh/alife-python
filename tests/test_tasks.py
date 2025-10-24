@@ -17,7 +17,7 @@ async def test_combat_task(monkeypatch):
     squad2.add_actor(Actor("monolith", (1, 1)))
     grid.place(squad2, (1, 1))
 
-    monkeypatch.setattr('library.tasks.COMBAT_DURATION', 0)
+    monkeypatch.setattr('config.COMBAT_DURATION', 0)
     monkeypatch.setattr('random.choices', lambda *args, **kwargs: [squad2])
     monkeypatch.setattr('random.random', lambda: 0.5)
 
@@ -43,7 +43,7 @@ async def test_move_task(monkeypatch):
     squad = Squad("stalker", (0, 0))
     squad.add_actor(Actor("stalker", (0, 0)))
 
-    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('config.TRAVEL_DURATION', 0)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
 
     await MoveTask(grid, squad, (5, 5)).execute()
@@ -70,8 +70,8 @@ async def test_hunt_artifacts_task(monkeypatch):
     grid = MapGrid()
     grid._area_map["fields"].extend([(1, 1), (4, 4)])
 
-    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
-    monkeypatch.setattr('library.tasks.ARTIFACT_HUNT_DURATION', 0)
+    monkeypatch.setattr('config.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('config.ARTIFACT_HUNT_DURATION', 0)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
 
     squad = Squad("stalker", (0, 0))
@@ -92,8 +92,8 @@ async def test_trade_task(monkeypatch):
     grid = MapGrid()
     grid._area_map["traders"].extend([(1, 1), (4, 4)])
 
-    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
-    monkeypatch.setattr('library.tasks.TRADE_DURATION', 0)
+    monkeypatch.setattr('config.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('config.TRADE_DURATION', 0)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
 
     squad = Squad("stalker", (0, 0))
@@ -122,7 +122,7 @@ async def test_loot_task(monkeypatch):
 
     grid.place(lootable, (1, 1))
 
-    monkeypatch.setattr('library.tasks.LOOT_DURATION', 0)
+    monkeypatch.setattr('config.LOOT_DURATION', 0)
     await LootTask(grid, squad, lootable).execute()
 
     assert squad.is_looting is False, "Squad should not be marked as looting"
@@ -148,7 +148,7 @@ async def test_hunt_squad_task(monkeypatch):
     squad3.add_actor(Actor("monolith", (5, 8)))
     grid.place(squad3, (5, 8))
 
-    monkeypatch.setattr('library.tasks.TRAVEL_DURATION', 0)
+    monkeypatch.setattr('config.TRAVEL_DURATION', 0)
     monkeypatch.setattr('library.pathfinder.PATHFINDING_MODE', 'simple')
 
     await HuntSquadTask(grid, squad1).execute()

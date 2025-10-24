@@ -3,24 +3,22 @@ import random
 
 from typing import Awaitable, Optional
 
-from .actor import Actor
-from .grid import MapGrid
-from .squad import Squad
-from .types import Location
+import config
 
-from config import GRID_X_SIZE, GRID_Y_SIZE
-from config import (COMBAT_DURATION, MIN_IDLE_DURATION, MAX_IDLE_DURATION, TRADE_DURATION,
-                    TRAVEL_DURATION, LOOT_DURATION, ARTIFACT_HUNT_DURATION, FACTIONS)
+from library.actor import Actor
+from library.grid import MapGrid
+from library.squad import Squad
+from library.types import Location
 
 
 async def move_to(grid: MapGrid, squad: Squad, dest: Location):
-    """Helper method to handle square-by-square movement"""
+    """Helper function to handle square-by-square movement"""
 
     if not squad.actors:
         grid.remove(squad)
         return False
 
-    await asyncio.sleep(TRAVEL_DURATION)
+    await asyncio.sleep(config.TRAVEL_DURATION)
     # interrupt movement for more important tasks
     if squad.in_combat or squad.is_looting:
         return False
@@ -53,7 +51,7 @@ class Task:
 
     def award_exp(self, squad: Squad):
         """Award exp for task completion"""
-        if FACTIONS[squad.faction]["can_gain_exp"]:
+        if config.FACTIONS[squad.faction]["can_gain_exp"]:
             for actor in squad.actors:
                 actor.gain_exp(random.randint(100, 300))
                 actor.rank_up()
@@ -69,8 +67,8 @@ class CombatTask(Task):
 
     async def _run(self, grid: MapGrid, left: Squad, right: Squad):
 
-        left_firepower = sum([a.experience for a in left.actors]) * FACTIONS[left.faction]["relative_firepower"]
-        right_firepower = sum([a.experience for a in right.actors]) * FACTIONS[right.faction]["relative_firepower"]
+        left_firepower = sum([a.experience for a in left.actors]) * config.FACTIONS[left.faction]["relative_firepower"]
+        right_firepower = sum([a.experience for a in right.actors]) * config.FACTIONS[right.faction]["relative_firepower"]
 
         # determine "winning" squad, weighted by firepower.
         # More squad members with more experience + higher relative firepower = higher overall power
@@ -81,7 +79,7 @@ class CombatTask(Task):
             bias = inverted and 1 - (random.random() ** 3.0) or random.random() ** 3.0
             return round(low + (high - low) * bias)
 
-        await asyncio.sleep(COMBAT_DURATION)
+        await asyncio.sleep(config.COMBAT_DURATION)
 
         for squad in (left, right):
             losses = biased_outcome(0, squad.num_actors(), squad is not winner)
@@ -113,7 +111,7 @@ class MoveTask(Task):
     def __init__(self, grid: MapGrid, squad: Squad, dest: Optional[Location] = None):
         # generate random destination if it was not specified
         if dest is None:
-            while (dest := (random.randint(0, GRID_X_SIZE - 1), random.randint(0, GRID_Y_SIZE - 1))) in grid.get_obstacles(): pass
+            while (dest := (random.randint(0, config.GRID_X_SIZE - 1), random.randint(0, config.GRID_Y_SIZE - 1))) in grid.get_obstacles(): pass
 
         self._steps = [self._run(grid, squad, dest)]
 
@@ -157,7 +155,7 @@ class HuntArtifactsTask(Task):
         grid.add_log_msg("ARTI", f"{squad} is hunting for artifacts", squad.location)
 
         squad.has_task = True
-        await asyncio.sleep(ARTIFACT_HUNT_DURATION)
+        await asyncio.sleep(config.ARTIFACT_HUNT_DURATION)
 
         if squad.in_combat:
             return False
@@ -202,7 +200,7 @@ class TradeTask(Task):
         for actor in squad.actors:
             actor.loot_value //= 2  # "sell" half of loot
 
-        await asyncio.sleep(TRADE_DURATION)
+        await asyncio.sleep(config.TRADE_DURATION)
         squad.has_task = False
 
         return True
@@ -213,7 +211,7 @@ class IdleTask(Task):
 
     def __init__(self, grid: MapGrid, squad: Squad, duration: Optional[int] = None):
         if duration is None:
-            duration = random.randint(MIN_IDLE_DURATION, MAX_IDLE_DURATION)
+            duration = random.randint(config.MIN_IDLE_DURATION, config.MAX_IDLE_DURATION)
 
         self._steps = [self._run(grid, squad, duration)]
 
@@ -248,7 +246,7 @@ class LootTask(Task):
         actor_loot_value = actor.loot_value
         actor.loot_value = None
 
-        await asyncio.sleep(LOOT_DURATION)
+        await asyncio.sleep(config.LOOT_DURATION)
         grid.remove(actor)
 
         random.choice(squad.actors).loot_value += actor_loot_value  # award loot to a random actor in a squad
@@ -262,7 +260,7 @@ class HuntSquadTask(Task):
     """Hunt another squad for bounty"""
 
     def __init__(self, grid: MapGrid, squad: Squad):
-        target = grid.get_squad_in_vicinity(squad.location, FACTIONS[squad.faction]["hostile"], max_actors=squad.num_actors())
+        target = grid.get_squad_in_vicinity(squad.location, config.FACTIONS[squad.faction]["hostile"], max_actors=squad.num_actors())
 
         if target:
             grid.add_log_msg("HUNT", f"{squad} is hunting {target} at {target.location}", squad.location)
@@ -272,6 +270,8 @@ class HuntSquadTask(Task):
 
     async def _run(self, grid: MapGrid, squad: Squad, target: Squad):
         path = grid.pathfinder.create_path(squad.location, target.location)
+        if not path:
+            return False
 
         squad.has_task = True
         old_location = target.location
@@ -291,4 +291,3 @@ class HuntSquadTask(Task):
         squad.has_task = False
 
         return True
-

@@ -2,8 +2,8 @@ import uuid
 
 from dataclasses import dataclass, field
 
-from .actor import Actor
-from .types import Location
+from library.actor import Actor
+from library.types import Location
 
 
 @dataclass

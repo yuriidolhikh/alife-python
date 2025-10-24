@@ -6,10 +6,10 @@ from collections import deque, defaultdict
 from colorama import Fore, just_fix_windows_console
 from typing import Optional
 
-from .actor import Actor
-from .pathfinder import Pathfinder
-from .squad import Squad
-from .types import Location
+from library.actor import Actor
+from library.pathfinder import Pathfinder
+from library.squad import Squad
+from library.types import Location
 
 from config import MAX_NUM_MESSAGES, SHOW_GRID, GRID_X_SIZE, GRID_Y_SIZE, MAP, FACTIONS
 

@@ -5,7 +5,7 @@ from typing import Optional
 
 from config import GRID_X_SIZE, GRID_Y_SIZE, PATHFINDING_MODE, CLUSTER_SIZE
 
-from .types import Location
+from library.types import Location
 
 
 class Pathfinder:
