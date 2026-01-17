@@ -50,14 +50,12 @@ class Task:
         return self._steps
 
     @staticmethod
-    def award_exp(squad: Squad) -> bool:
+    def award_exp(squad: Squad) -> None:
         """Award exp for task completion"""
         if config.FACTIONS[squad.faction]["can_gain_exp"]:
             for actor in squad.actors:
                 actor.gain_exp(random.randint(100, 300))
                 actor.rank_up()
-
-        return True
 
 
 class CombatTask(Task):
@@ -66,7 +64,7 @@ class CombatTask(Task):
     def __init__(self, grid: MapGrid, left: Squad, right: Squad) -> None:
         self._steps = [self._run(grid, left, right)]
 
-    async def _run(self, grid: MapGrid, left: Squad, right: Squad) -> bool:
+    async def _run(self, grid: MapGrid, left: Squad, right: Squad) -> None:
         left_firepower = sum([a.experience for a in left.actors]) * config.FACTIONS[left.faction]["relative_firepower"]
         right_firepower = sum([a.experience for a in right.actors]) * config.FACTIONS[right.faction]["relative_firepower"]
 
@@ -101,8 +99,6 @@ class CombatTask(Task):
         right.in_combat = False
 
         self.award_exp(winner)
-
-        return True
 
 
 class MoveTask(Task):
@@ -192,7 +188,7 @@ class TradeTask(Task):
             self._steps = []  # map does not support traders
 
     @staticmethod
-    async def _run(grid: MapGrid, squad: Squad) -> bool:
+    async def _run(grid: MapGrid, squad: Squad) -> None:
         squad.has_task = True
         grid.add_log_msg("TRDE", f"{squad} is selling habar", squad.location)
 
@@ -201,8 +197,6 @@ class TradeTask(Task):
 
         await asyncio.sleep(config.TRADE_DURATION)
         squad.has_task = False
-
-        return True
 
 
 class IdleTask(Task):
@@ -215,13 +209,11 @@ class IdleTask(Task):
         self._steps = [self._run(grid, squad, duration)]
 
     @staticmethod
-    async def _run(grid: MapGrid, squad: Squad, duration: int) -> bool:
+    async def _run(grid: MapGrid, squad: Squad, duration: int) -> None:
         grid.add_log_msg("IDLE", f"{squad} is waiting for {duration} seconds", squad.location)
         squad.has_task = True
         await asyncio.sleep(duration)
         squad.has_task = False
-
-        return True
 
 
 class LootTask(Task):

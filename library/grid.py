@@ -76,7 +76,7 @@ class MapGrid:
 
         return sorted(candidates, key=lambda x: self.pathfinder.manhattan_distance(point, x.location))[0]
 
-    def draw(self) -> bool:
+    def draw(self) -> None:
         """Draw current grid state in console"""
 
         # Extract row/column labels
@@ -120,8 +120,6 @@ class MapGrid:
         for entry in self._msg_log:
             print(entry)
 
-        return True
-
     def refresh(self) -> bool:
         """Redraw the grid in the terminal"""
         if not SHOW_GRID:
@@ -131,7 +129,7 @@ class MapGrid:
         self.draw()
         return True
 
-    def add_log_msg(self, msg_type: str, message: str, square: Location | None = None) -> bool:
+    def add_log_msg(self, msg_type: str, message: str, square: Location | None = None) -> None:
         """Logging helper"""
 
         parts = []
@@ -160,9 +158,7 @@ class MapGrid:
         else:
             print(logged_msg)
 
-        return True
-
-    def spawn(self, faction: str, location: Location | None = None) -> bool:
+    def spawn(self, faction: str, location: Location | None = None) -> None:
         """Spawn random faction squad on the map"""
 
         if location is None:
@@ -184,8 +180,6 @@ class MapGrid:
 
         self.place(squad, location)
         self.add_log_msg("INFO", f"Spawned a new {num_actors}-actor {faction.upper()} squad", location)
-
-        return True
 
     @staticmethod
     def get_spawn_area(bias: tuple[float, float] | None, fractions: tuple[float, float] | None = None) -> list[int]:
@@ -238,18 +232,14 @@ class MapGrid:
 
         return True
 
-    def place(self, entity: Actor | Squad, square: Location) -> bool:
+    def place(self, entity: Actor | Squad, square: Location) -> None:
         """Place actor or squad on the grid square"""
         index = 0 if isinstance(entity, Squad) else 1
         self._grid[square][index].append(entity)
 
-        return True
-
-    def cleanup(self) -> bool:
+    def cleanup(self) -> None:
         """Clean up empty squares. On larger grids they take up a lot of memory"""
         for square in self._squares_to_delete:
             del self._grid[square]
 
         self._squares_to_delete = set()
-
-        return True

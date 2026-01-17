@@ -30,14 +30,10 @@ class Actor:
     def __str__(self) -> str:
         return f"{self.faction.capitalize()} actor ({self.rank}) at location {self.location}"
 
-    def gain_exp(self, exp: int) -> bool:
+    def gain_exp(self, exp: int) -> None:
         """Simple method to track actor experience"""
         self.experience = min((len(RANKS) - 1) * EXP_PER_RANK, self.experience + exp)
 
-        return True
-
-    def rank_up(self) -> bool:
+    def rank_up(self) -> None:
         """Increase actor rank based on current experience"""
         self.rank = RANKS[self.experience // EXP_PER_RANK]
-
-        return True
