@@ -30,8 +30,7 @@ class Pathfinder:
             self._clusters = self._precompute_clusters()
             self._hpa_graph = self._compute_cluster_links(obstacles)
 
-    @staticmethod
-    def _precompute_clusters() -> dict[Location, list[Location]]:
+    def _precompute_clusters(self) -> dict[Location, list[Location]]:
         """Pre-compute HPA clusters and cluster links"""
 
         # Build cluster adjacency graph
@@ -64,15 +63,12 @@ class Pathfinder:
 
         return graph
 
-    @staticmethod
-    def manhattan_distance(a: Location, b: Location) -> int:
+    def manhattan_distance(self, a: Location, b: Location) -> int:
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-    @staticmethod
-    def chebyshev_distance(a: Location, b: Location) -> int:
+    def chebyshev_distance(self, a: Location, b: Location) -> int:
         return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
-    @staticmethod
     def in_bounds(x: int, y: int) -> bool:
         return 0 <= x < GRID_X_SIZE and 0 <= y < GRID_Y_SIZE
 
@@ -94,8 +90,7 @@ class Pathfinder:
 
         return path
 
-    @staticmethod
-    def create_simple_path(start: Location, dest: Location) -> list[Location]:
+    def create_simple_path(self, start: Location, dest: Location) -> list[Location]:
         """Simple direct path on a 2D grid with 8-direction movement"""
 
         x, y = start

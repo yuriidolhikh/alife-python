@@ -181,8 +181,7 @@ class MapGrid:
         self.place(squad, location)
         self.add_log_msg("INFO", f"Spawned a new {num_actors}-actor {faction.upper()} squad", location)
 
-    @staticmethod
-    def get_spawn_area(bias: tuple[float, float] | None, fractions: tuple[float, float] | None = None) -> list[int]:
+    def get_spawn_area(self, bias: tuple[float, float] | None, fractions: tuple[float, float] | None = None) -> list[int]:
         """
             Create a spawning area given a bias ((0.0, 0.0) being an upper left corner, (1.0, 1.0) being the lower right)
             and a fraction parameter that determines the percentage of the grid in X and Y dimensions to include.

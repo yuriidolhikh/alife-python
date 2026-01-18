@@ -49,8 +49,7 @@ class Task:
     def get_steps(self) -> list[Awaitable]:
         return self._steps
 
-    @staticmethod
-    def award_exp(squad: Squad) -> None:
+    def award_exp(self, squad: Squad) -> None:
         """Award exp for task completion"""
         if config.FACTIONS[squad.faction]["can_gain_exp"]:
             for actor in squad.actors:
@@ -187,8 +186,7 @@ class TradeTask(Task):
         else:
             self._steps = []  # map does not support traders
 
-    @staticmethod
-    async def _run(grid: MapGrid, squad: Squad) -> None:
+    async def _run(self, grid: MapGrid, squad: Squad) -> None:
         squad.has_task = True
         grid.add_log_msg("TRDE", f"{squad} is selling habar", squad.location)
 
@@ -208,8 +206,7 @@ class IdleTask(Task):
 
         self._steps = [self._run(grid, squad, duration)]
 
-    @staticmethod
-    async def _run(grid: MapGrid, squad: Squad, duration: int) -> None:
+    async def _run(self, grid: MapGrid, squad: Squad, duration: int) -> None:
         grid.add_log_msg("IDLE", f"{squad} is waiting for {duration} seconds", squad.location)
         squad.has_task = True
         await asyncio.sleep(duration)
@@ -222,8 +219,7 @@ class LootTask(Task):
     def __init__(self, grid: MapGrid, squad: Squad, actor: Actor) -> None:
         self._steps = [self._run(grid, squad, actor)]
 
-    @staticmethod
-    async def _run(grid: MapGrid, squad: Squad, actor: Actor) -> bool:
+    async def _run(self, grid: MapGrid, squad: Squad, actor: Actor) -> bool:
         if actor.loot_value is None:
             return False  # already looted
 
