@@ -59,8 +59,8 @@ class MapGrid:
 
     def get_squad_in_vicinity(
         self, point: Location, factions: list[str], distance_factor: int = 20, max_actors: int = 5
-    ) -> Squad | bool:
-        """Find closes squad of specified faction within a given range"""
+    ) -> Squad | None:
+        """Find the closest squad of specified factions within a given range"""
         low_x, high_x = max(point[0] - GRID_X_SIZE // distance_factor, 0), min(point[0] + GRID_X_SIZE // distance_factor, GRID_X_SIZE)
         low_y, high_y = max(point[1] - GRID_Y_SIZE // distance_factor, 0), min(point[1] + GRID_Y_SIZE // distance_factor, GRID_Y_SIZE)
 
@@ -72,7 +72,7 @@ class MapGrid:
                     candidates.extend([squad for squad in squadlist if squad.faction in factions and squad.num_actors() <= max_actors])
 
         if not candidates:
-            return False
+            return None
 
         return sorted(candidates, key=lambda x: self.pathfinder.manhattan_distance(point, x.location))[0]
 
