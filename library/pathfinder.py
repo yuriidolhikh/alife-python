@@ -69,7 +69,7 @@ class Pathfinder:
     def chebyshev_distance(self, a: Location, b: Location) -> int:
         return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
 
-    def in_bounds(x: int, y: int) -> bool:
+    def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < GRID_X_SIZE and 0 <= y < GRID_Y_SIZE
 
     def create_path(self, start: Location, dest: Location, obstacles: set[Location] | None = None) -> list[Location] | None:
